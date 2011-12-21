@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Reversi</title>
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript" src="reversi.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var rev = Reversi();
+            var game = rev.reversi();
+            game.setup();
+
+            var eventHandler = function (row, column) {
+                try {
+                    game.makeMove(rev.position(row, column));
+                }
+                catch (err) {
+                    window.alert(err);
+                    return;
+                }
+
+                var moves = game.getLegalMoves();
+                if (moves.length == 0) {
+                    game.makePassMove();
+                } else {
+                    game.makeMove(moves[0]);
+                }
+
+
+                var board = rev.drawBoard(game.getBoard(), eventHandler);
+                $("#board").html(board);
+            };
+
+            var board = rev.drawBoard(game.getBoard(), eventHandler);
+            $("#board").html(board);
+        });
+    </script>
+</head>
+<body>
+    <div id="board">
+    </div>
+</body>
+</html>
