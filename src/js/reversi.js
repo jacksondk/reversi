@@ -31,8 +31,8 @@ var Reversi = function () {
                 return null;
         };
 
-        that.get_row = function () { return row; };
-        that.get_column = function () { return column };
+        that.getRow = function () { return row; };
+        that.getColumn = function () { return column };
 
         return that;
     };
@@ -192,9 +192,14 @@ var Reversi = function () {
 
     };
 
-    var drawBoard = function (board, clickEventHandler) {
+    var drawBoard = function (game, clickEventHandler, passHandler) {
         var rowIndex, columnIndex;
-        var table = $("<table>");
+        var playerOneCount = 0, playerTwoCount = 0;
+
+        var board = game.getBoard();
+        var allowedMoves = game.getLegalMoves();
+
+        var table = $("<table>").addClass("board");
         var row = $("<tr>");
         table.append(row);
         row.append($("<td>"));
@@ -206,10 +211,26 @@ var Reversi = function () {
         for (rowIndex = 0; rowIndex < 8; rowIndex++) {
             row = $("<tr>").append($("<td>").append(rowName[rowIndex]));
             for (columnIndex = 0; columnIndex < 8; columnIndex++) {
-                var sign = " ";
+                // Find type to draw
                 var type = board.getTypeAtPosition(position(rowIndex, columnIndex));
-                if (type == 1) sign = "X";
-                if (type == 2) sign = "O";
+                var sign = " ";
+
+                if (type == 1) {
+                    playerOneCount = playerOneCount + 1;
+                    sign = "X";
+                }
+                if (type == 2) {
+                    playerTwoCount = playerTwoCount + 1;
+                    sign = "O";
+                }
+                var allowed = false;
+                if (type == 0) {
+                    for (var movesIndex = 0; movesIndex < allowedMoves.length; movesIndex++) {
+                        if (allowedMoves[movesIndex].getRow() == rowIndex && allowedMoves[movesIndex].getColumn() == columnIndex)
+                            allowed = true;
+                    }
+                }
+                // Draw field
                 var field = $("<td>").append(sign);
                 if (type == 0) {
                     field.click({ row: rowIndex, column: columnIndex }, function (event) {
@@ -218,10 +239,23 @@ var Reversi = function () {
                         clickEventHandler(r, c);
                     });
                 }
+                if (allowed) {
+                    field.addClass("allowed");
+                }
                 row.append(field);
             }
+            row.append($("<td>").append(rowName[rowIndex]));
             table.append(row);
         }
+
+        row = $("<tr>").append($("<td>").attr("colspan", "10").append($("<button>Pass</button>").click(passHandler)));
+        table.append(row);
+
+        row = $("<tr>");
+        row.append($("<td>").attr("colspan", "3").append("Player 1")).append($("<td>").append(playerOneCount));
+        row.append($("<td>").attr("colspan", "3").append("Player 2")).append($("<td>").append(playerTwoCount));
+        table.append(row);
+
         return table;
     };
 

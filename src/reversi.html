@@ -2,13 +2,41 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Reversi</title>
-    <script src="http://code.jquery.com/jquery-latest.js"></script>
-    <script type="text/javascript" src="reversi.js"></script>
+    <link type="text/css" rel="stylesheet" href="./reversi.css"/>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript" src="js/reversi.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             var rev = Reversi();
             var game = rev.reversi();
             game.setup();
+
+            var opponentMove = function () {
+                var moves = game.getLegalMoves();
+                if (moves.length == 0) {
+                    game.makePassMove();
+                } else {
+                    game.makeMove(moves[0]);
+                }
+            };
+
+            var drawBoard = function () {
+                var board = rev.drawBoard(game, eventHandler, passHandler);
+                $("#board").html(board);
+            };
+
+            var passHandler = function () {
+                try {
+                    game.makePassMove();
+                }
+                catch (err) {
+                    window.alert(err);
+                    return;
+                }
+
+                opponentMove();
+                drawBoard();
+            };
 
             var eventHandler = function (row, column) {
                 try {
@@ -19,20 +47,12 @@
                     return;
                 }
 
-                var moves = game.getLegalMoves();
-                if (moves.length == 0) {
-                    game.makePassMove();
-                } else {
-                    game.makeMove(moves[0]);
-                }
-
-
-                var board = rev.drawBoard(game.getBoard(), eventHandler);
-                $("#board").html(board);
+                opponentMove();
+                drawBoard();
             };
 
-            var board = rev.drawBoard(game.getBoard(), eventHandler);
-            $("#board").html(board);
+
+            drawBoard();            
         });
     </script>
 </head>

@@ -14,40 +14,40 @@ $(document).ready(function () {
         var pos = g.position(3, 3);
 
         var p1 = pos.move(0);
-        equal(p1.get_row(), 4);
-        equal(p1.get_column(), 3);
+        equal(p1.getRow(), 4);
+        equal(p1.getColumn(), 3);
 
-        equal(pos.get_row(), 3);
-        equal(pos.get_column(), 3);
+        equal(pos.getRow(), 3);
+        equal(pos.getColumn(), 3);
 
         var p2 = pos.move(1);
         console.log(p2);
-        equal(p2.get_row(), 4);
-        equal(p2.get_column(), 4);
+        equal(p2.getRow(), 4);
+        equal(p2.getColumn(), 4);
 
         var p3 = pos.move(2);
-        equal(p3.get_row(), 3);
-        equal(p3.get_column(), 4);
+        equal(p3.getRow(), 3);
+        equal(p3.getColumn(), 4);
 
         var p4 = pos.move(3);
-        equal(p4.get_row(), 2);
-        equal(p4.get_column(), 4);
+        equal(p4.getRow(), 2);
+        equal(p4.getColumn(), 4);
 
         var p5 = pos.move(4);
-        equal(p5.get_row(), 2);
-        equal(p5.get_column(), 3);
+        equal(p5.getRow(), 2);
+        equal(p5.getColumn(), 3);
 
         var p6 = pos.move(5);
-        equal(p6.get_row(), 2);
-        equal(p6.get_column(), 2);
+        equal(p6.getRow(), 2);
+        equal(p6.getColumn(), 2);
 
         var p7 = pos.move(6);
-        equal(p7.get_row(), 3);
-        equal(p7.get_column(), 2);
+        equal(p7.getRow(), 3);
+        equal(p7.getColumn(), 2);
 
         var p8 = pos.move(7);
-        equal(p8.get_row(), 4);
-        equal(p8.get_column(), 2);
+        equal(p8.getRow(), 4);
+        equal(p8.getColumn(), 2);
     });
 
     test("Exception illegal move", function () {
@@ -113,8 +113,8 @@ $(document).ready(function () {
         var list = game.getTurnedPieces(game.getBoard(), g.position(3, 2), 2);
         equal(list.length, 1);
         var pos = list[0];
-        equal(pos.get_row(), 3);
-        equal(pos.get_column(), 3);
+        equal(pos.getRow(), 3);
+        equal(pos.getColumn(), 3);
 
         list = game.getTurnedPieces(game.getBoard(), g.position(2, 3), 2);
     });
