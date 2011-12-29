@@ -1,0 +1,21 @@
+﻿body
+{
+}
+
+table.board
+{
+    border-collapse: separate;
+}
+
+table.board tbody tr td
+{
+    border-width: 1px;
+    border-style: solid;
+}
+
+table.board tbody tr td.allowed
+{
+    border-width: 1px;
+    border-style: solid;
+    background-color: Lime;
+}
