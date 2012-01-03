@@ -37,6 +37,37 @@ var Reversi = function () {
         return that;
     };
 
+    var passMove = function () {
+        var that = {};
+
+        that.isPassMove = function () { return true; }
+        that.isGameOver = function () { return false; }
+        that.getPosition = function () { return null; }
+
+        return that;
+    };
+
+    var gameOverMove = function () {
+        var that = {};
+
+        that.isPassMove = function () { return false; }
+        that.isGameOver = function () { return true; }
+        that.getPosition = function () { return null; }
+
+        return that;
+    };
+
+    var positionMove = function (position) {
+        var that = {};
+        var movePosition = position;
+        that.isPassMove = function () { return false; }
+        that.isGameOver = function () { return false; }
+        that.getPosition = function () { return movePosition; }
+
+        return that;
+
+    };
+
     var board = function () {
         var that = {};
 
@@ -148,7 +179,31 @@ var Reversi = function () {
         };
         that.getTurnedPieces = getTurnedPieces;
 
-        that.makeMove = function (position) {
+        var makePassMove = function () {
+            var allowedMoveList = getLegalMoves();
+            if (allowedMoveList.length > 1)
+                throw "Not allowed to pass when multiple possible moves exist";
+
+            if (allowedMoveList[0].isGameOver())
+                throw "Pass move not allowed when game is over";
+
+            if (allowedMoveList[0].isPassMove()) {
+                currentPlayer = otherPlayer(currentPlayer);
+            } else {
+                throw "Not allowed to pass when possible move exists";
+            }
+        };
+
+
+        that.makeMove = function (positionMove) {
+            if (positionMove.isPassMove()) {
+                makePassMove();
+                return;
+            }
+
+            var position = positionMove.getPosition();
+            if (position == null)
+                throw "Not a valid move";
             var turnList = getTurnedPieces(b, position, currentPlayer);
             if (turnList.length == 0)
                 throw "Illegal move";
@@ -159,28 +214,43 @@ var Reversi = function () {
             b.setTypeAtPosition(position, currentPlayer);
             currentPlayer = otherPlayer(currentPlayer);
         };
+
         var getLegalMoves = function () {
-            var legalMoves = [];
-            for (var row = 0; row < 8; row++) {
-                for (var column = 0; column < 8; column++) {
-                    var tryLocation = position(row, column);
-                    var turnList = getTurnedPieces(b, tryLocation, currentPlayer);
-                    if (turnList.length > 0) {
-                        legalMoves.push(tryLocation);
+
+            // Find all legal moves where a piece is placed on board
+            var findLegalMovesForPlayer = function (player) {
+                var legalMoves = [];
+                for (var row = 0; row < 8; row++) {
+                    for (var column = 0; column < 8; column++) {
+                        var tryLocation = position(row, column);
+                        var turnList = getTurnedPieces(b, tryLocation, player);
+                        if (turnList.length > 0) {
+                            legalMoves.push(positionMove(tryLocation));
+                        }
                     }
                 }
+                return legalMoves;
+            };
+
+            legalMoves = findLegalMovesForPlayer(currentPlayer);
+
+            // If no pieces may be placed player we have two cases
+            // If other player has valid moves the current player may only make a pass move
+            // If other player also has no valid moves the game has ended.
+            if (legalMoves.length == 0) {
+                var otherPlayerLegalMoves = findLegalMovesForPlayer(otherPlayer(currentPlayer));
+                if (otherPlayerLegalMoves.length == 0) {
+                    legalMoves.push(gameOverMove());
+                } else {
+                    legalMoves.push(passMove());
+                }
             }
+
+
             return legalMoves;
         };
 
-        that.makePassMove = function () {
-            var allowedMoveList = getLegalMoves();
-            if (allowedMoveList.length > 0)
-                throw "Not allowed to pass when possible moves exist";
-
-            currentPlayer = otherPlayer(currentPlayer);
-        };
-
+        
         that.getLegalMoves = getLegalMoves;
 
         that.drawBoard = function (location) {
@@ -226,8 +296,13 @@ var Reversi = function () {
                 var allowed = false;
                 if (type == 0) {
                     for (var movesIndex = 0; movesIndex < allowedMoves.length; movesIndex++) {
-                        if (allowedMoves[movesIndex].getRow() == rowIndex && allowedMoves[movesIndex].getColumn() == columnIndex)
-                            allowed = true;
+                        var move = allowedMoves[movesIndex];
+                        if (move.isPassMove() == false && move.isGameOver() == false) {
+                            var location = move.getPosition();
+                            if (location.getRow() == rowIndex && location.getColumn() == columnIndex) {
+                                allowed = true;
+                            }
+                        }
                     }
                 }
                 // Draw field
@@ -261,6 +336,9 @@ var Reversi = function () {
 
     return {
         position: position,
+        gameOverMove: gameOverMove,
+        positionMove: positionMove,
+        passMove: passMove,
         board: board,
         reversi: reversi,
         drawBoard: drawBoard

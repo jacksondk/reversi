@@ -126,7 +126,7 @@ $(document).ready(function () {
         equal(game.getCurrentPlayer(), 1);
         var newPos = g.position(4, 2);
         var turnPos = g.position(4, 3);
-        game.makeMove(newPos);
+        game.makeMove(g.positionMove(newPos));
 
         var board = game.getBoard();
         var string = board.toString();
@@ -140,7 +140,7 @@ $(document).ready(function () {
 
         newPos = g.position(5, 2);
         turnPos = g.position(4, 3);
-        game.makeMove(newPos);
+        game.makeMove(g.positionMove(newPos));
         equal(game.getCurrentPlayer(), 1);
         board = game.getBoard();
         $("#test_output").append(board.toString());
@@ -156,23 +156,34 @@ $(document).ready(function () {
         var allowedMoves = game.getLegalMoves();
         equal(4, allowedMoves.length);
 
-        game.makeMove(g.position(4, 2));
+        game.makeMove(g.positionMove(g.position(4, 2)));
         allowedMoves = game.getLegalMoves();
         equal(3, allowedMoves.length);
     });
 
-    test("Pass move", function () {
+    test("Pass move when game over", function () {
         var game = g.reversi();
         game.setup();
         var b = game.getBoard();
         b.setTypeAtPosition(g.position(3, 4), 1);
         b.setTypeAtPosition(g.position(4, 3), 1);
-        game.makePassMove();
 
-        equal(2, game.getCurrentPlayer());
+        raises(function () {
+            game.makePassMove();
+        });
 
-        game.makePassMove();
-        equal(1, game.getCurrentPlayer());
+    });
+
+    test("Game over", function () {
+        var game = g.reversi();
+        game.setup();
+        var b = game.getBoard();
+        b.setTypeAtPosition(g.position(3, 4), 1);
+        b.setTypeAtPosition(g.position(4, 3), 1);
+
+        var allowedMoves = game.getLegalMoves();
+        equal(1, allowedMoves.length);
+        equal(true, allowedMoves[0].isGameOver());
     });
 
     test("Pass is not legal when move is possible", function () {
@@ -188,10 +199,10 @@ $(document).ready(function () {
         var game = g.reversi();
         game.setup();
 
-        for( var i = 0; i < 10; i++ ) {
+        for (var i = 0; i < 10; i++) {
             var listOfMoves = game.getLegalMoves();
-            var randomIndex = Math.floor(Math.random()*listOfMoves.length);
-            game.makeMove( listOfMoves[randomIndex] );
+            var randomIndex = Math.floor(Math.random() * listOfMoves.length);
+            game.makeMove(listOfMoves[randomIndex]);
             $("#test_output").append(game.getBoard().toString());
         }
     });

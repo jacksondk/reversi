@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Reversi</title>
-    <link type="text/css" rel="stylesheet" href="./reversi.css"/>
+    <link type="text/css" rel="stylesheet" href="./reversi.css" />
     <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
     <script type="text/javascript" src="js/reversi.js"></script>
     <script type="text/javascript">
@@ -13,8 +13,8 @@
 
             var opponentMove = function () {
                 var moves = game.getLegalMoves();
-                if (moves.length == 0) {
-                    game.makePassMove();
+                if (moves.length == 1 && moves[0].isGameOver()) {
+                    return;
                 } else {
                     game.makeMove(moves[0]);
                 }
@@ -27,7 +27,7 @@
 
             var passHandler = function () {
                 try {
-                    game.makePassMove();
+                    game.makeMove(rev.passMove());
                 }
                 catch (err) {
                     window.alert(err);
@@ -40,7 +40,7 @@
 
             var eventHandler = function (row, column) {
                 try {
-                    game.makeMove(rev.position(row, column));
+                    game.makeMove(rev.positionMove(rev.position(row, column)));
                 }
                 catch (err) {
                     window.alert(err);
@@ -52,7 +52,7 @@
             };
 
 
-            drawBoard();            
+            drawBoard();
         });
     </script>
 </head>
