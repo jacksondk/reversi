@@ -16,7 +16,16 @@
                 if (moves.length == 1 && moves[0].isGameOver()) {
                     return;
                 } else {
-                    game.makeMove(moves[0]);
+                    var maxIndex = moves.length;
+                    var type = $("#cputype").val();
+                    switch (type) {
+                        case "first": game.makeMove(moves[0]); break;
+                        case "last": game.makeMove(moves[maxIndex - 1]); break;
+                        case "random":
+                            var randomIndex = Math.floor(Math.random() * maxIndex);
+                            game.makeMove(moves[randomIndex]);
+                            break;
+                    }                    
                 }
             };
 
@@ -58,6 +67,22 @@
 </head>
 <body>
     <div id="board">
+    </div>
+    <div id="cpu">
+        <table>
+            <tr>
+                <td>
+                    Oponent
+                </td>
+                <td>
+                    <select id="cputype">
+                        <option value="first">First mover</option>
+                        <option value="last">Last mover</option>
+                        <option value="random">Random</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
     </div>
 </body>
 </html>
