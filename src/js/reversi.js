@@ -68,27 +68,37 @@ var Reversi = function () {
 
     };
 
-    var board = function () {
+    board = function (spec) {
         var that = {};
+        spec = spec || {};
 
-        var board = [];
-        for (var i = 0; i < 8 * 8; i++) {
-            board[i] = 0;
-        };
+        var myBoard = [];
+
+        if (spec.board != null) {
+            for (var i = 0; i < 8 * 8; i++) {
+                myBoard[i] = spec.board[i];
+            }
+        } else {
+            for (var i = 0; i < 8 * 8; i++) {
+                myBoard[i] = 0;
+            }
+        }
 
         that.setTypeAtPosition = function (position, type) {
             var index = position.toIndex();
             if (index >= 0 && index < 8 * 8)
-                board[index] = type;
+                myBoard[index] = type;
         };
 
         var getTypeAtPosition = function (position) {
             var index = position.toIndex();
             if (index >= 0 && index < 8 * 8)
-                return board[index];
+                return myBoard[index];
             else
                 return -1;
         };
+
+        that.copy = function () { return board({ "board": myBoard }); }
 
         that.getTypeAtPosition = getTypeAtPosition;
 
@@ -123,11 +133,15 @@ var Reversi = function () {
         return that;
     };
 
-    var reversi = function () {
+    var reversi = function (spec) {
         var that = {};
+        spec = spec || {};
 
         var b;
-        var currentPlayer;
+        if (spec.board != null) {
+            b = spec.board.copy();
+        }
+        var currentPlayer = spec.currentPlayer || 1;
 
         var otherPlayer = function (type) {
             if (type == 1) return 2;
@@ -325,7 +339,7 @@ var Reversi = function () {
         row = $("<tr>");
         row.append($("<td>").attr("colspan", "3").addClass("p1").append("Player 1")).append($("<td>").addClass("p1").append(playerOneCount));
         row.append($("<td>").attr("colspan", "2"));
-        row.append($("<td>").addClass("p2").append(playerTwoCount)).append( $("<td>").attr("colspan", "3").addClass("p2").append("Player 2") );
+        row.append($("<td>").addClass("p2").append(playerTwoCount)).append($("<td>").attr("colspan", "3").addClass("p2").append("Player 2"));
         table.append(row);
 
         return table;

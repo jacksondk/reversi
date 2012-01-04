@@ -87,6 +87,22 @@ $(document).ready(function () {
         equal(1, after);
     });
 
+    test("Board copy", function () {
+        var b = g.board();
+        var p = g.position(3, 3);
+        b.setTypeAtPosition(p, 1);
+
+        var b2 = b.copy();
+
+        equal(1, b.getTypeAtPosition(p));
+        equal(1, b2.getTypeAtPosition(p));
+
+        b.setTypeAtPosition(p, 2);
+        equal(2, b.getTypeAtPosition(p));
+        equal(1, b2.getTypeAtPosition(p));
+
+    });
+
     test("Test initial state of reversi game", function () {
         var game = g.reversi();
         game.setup();
@@ -206,4 +222,6 @@ $(document).ready(function () {
             $("#test_output").append(game.getBoard().toString());
         }
     });
+
+
 });
