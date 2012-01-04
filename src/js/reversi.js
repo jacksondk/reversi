@@ -250,7 +250,7 @@ var Reversi = function () {
             return legalMoves;
         };
 
-        
+
         that.getLegalMoves = getLegalMoves;
 
         that.drawBoard = function (location) {
@@ -284,14 +284,14 @@ var Reversi = function () {
                 // Find type to draw
                 var type = board.getTypeAtPosition(position(rowIndex, columnIndex));
                 var sign = " ";
-
+                var field = $("<td>");
                 if (type == 1) {
                     playerOneCount = playerOneCount + 1;
-                    sign = "X";
+                    field.addClass("p1");
                 }
                 if (type == 2) {
                     playerTwoCount = playerTwoCount + 1;
-                    sign = "O";
+                    field.addClass("p2");
                 }
                 var allowed = false;
                 if (type == 0) {
@@ -300,22 +300,18 @@ var Reversi = function () {
                         if (move.isPassMove() == false && move.isGameOver() == false) {
                             var location = move.getPosition();
                             if (location.getRow() == rowIndex && location.getColumn() == columnIndex) {
-                                allowed = true;
+                                field.addClass("allowed");
                             }
                         }
                     }
                 }
                 // Draw field
-                var field = $("<td>").append(sign);
                 if (type == 0) {
                     field.click({ row: rowIndex, column: columnIndex }, function (event) {
                         var r = event.data.row;
                         var c = event.data.column;
                         clickEventHandler(r, c);
                     });
-                }
-                if (allowed) {
-                    field.addClass("allowed");
                 }
                 row.append(field);
             }
@@ -327,8 +323,9 @@ var Reversi = function () {
         table.append(row);
 
         row = $("<tr>");
-        row.append($("<td>").attr("colspan", "3").append("Player 1")).append($("<td>").append(playerOneCount));
-        row.append($("<td>").attr("colspan", "3").append("Player 2")).append($("<td>").append(playerTwoCount));
+        row.append($("<td>").attr("colspan", "3").addClass("p1").append("Player 1")).append($("<td>").addClass("p1").append(playerOneCount));
+        row.append($("<td>").attr("colspan", "2"));
+        row.append($("<td>").addClass("p2").append(playerTwoCount)).append( $("<td>").attr("colspan", "3").addClass("p2").append("Player 2") );
         table.append(row);
 
         return table;
