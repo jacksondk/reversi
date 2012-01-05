@@ -208,6 +208,11 @@ var Reversi = function () {
             }
         };
 
+        that.doMove = function (move) {
+            var newGame = reversi({ board: b, currentPlayer: currentPlayer });
+            newGame.makeMove(move);
+            return newGame;
+        };
 
         that.makeMove = function (positionMove) {
             if (positionMove.isPassMove()) {
@@ -332,8 +337,11 @@ var Reversi = function () {
             row.append($("<td>").append(rowName[rowIndex]));
             table.append(row);
         }
-
-        row = $("<tr>").append($("<td>").attr("colspan", "10").append($("<button>Pass</button>").click(passHandler)));
+        var passButton = "";
+        if (allowedMoves.length === 1 && allowedMoves[0].isPassMove()) {
+            passButton = $("<button>Pass</button>").click(passHandler);
+        }
+        row = $("<tr>").append($("<td>").attr("colspan", "10").append(passButton));
         table.append(row);
         var state = "";
         if (allowedMoves.length === 1 && allowedMoves[0].isGameOver()) {
@@ -349,6 +357,32 @@ var Reversi = function () {
         return table;
     };
 
+    var getBestMove = function (game, positionEvaluator) {
+        var moveList = game.getLegalMoves();
+        var bestScore = -1000;
+        var bestIndex = -1;
+        for (var i = 0; i < moveList.length; i++) {
+            var newGame = game.doMove(moveList[i]);
+            var newGameValue = positionEvaluator(newGame.getBoard());
+            if (newGameValue > bestScore) {
+                bestIndex = i;
+            }
+        }
+        return moveList[bestIndex];
+    };
+
+    var simpleEvaluator = function (board) {
+        var value = 0;
+        for (var row = 0; row < 8; row++) {
+            for (var column = 0; column < 8; column++) {
+                var type = board.getTypeAtPosition(position(row, column));
+                if (type === 1) value++;
+                if (type === 2) value--;
+            }
+        }
+        return value;
+    };
+
     return {
         position: position,
         gameOverMove: gameOverMove,
@@ -356,6 +390,8 @@ var Reversi = function () {
         passMove: passMove,
         board: board,
         reversi: reversi,
-        drawBoard: drawBoard
+        drawBoard: drawBoard,
+        getBestMove: getBestMove,
+        simpleEvaluator: simpleEvaluator
     };
 };

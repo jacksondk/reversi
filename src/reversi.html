@@ -25,7 +25,11 @@
                             var randomIndex = Math.floor(Math.random() * maxIndex);
                             game.makeMove(moves[randomIndex]);
                             break;
-                    }                    
+                        case "simplebest":
+                            var bestMove = rev.getBestMove(game, rev.simpleEvaluator);
+                            game.makeMove(bestMove);
+                            break;
+                    }
                 }
             };
 
@@ -79,6 +83,7 @@
                         <option value="first">First mover</option>
                         <option value="last">Last mover</option>
                         <option value="random">Random</option>
+                        <option value="simplebest" selected="selected">Simple Best</option>
                     </select>
                 </td>
             </tr>

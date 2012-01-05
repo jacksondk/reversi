@@ -223,5 +223,30 @@ $(document).ready(function () {
         }
     });
 
+    test("doMake", function () {
+        var game = g.reversi();
+        game.setup();
 
+        var listOfMoves = game.getLegalMoves();
+        var randomIndex = Math.floor(Math.random() * listOfMoves.length);
+        var move = listOfMoves[randomIndex];
+        var game2 = game.doMove(move);
+
+        equal(1, game2.getBoard().getTypeAtPosition(move.getPosition()));
+        equal(1, game2.getBoard().getTypeAtPosition(g.position(4, 4)));
+        equal(0, game.getBoard().getTypeAtPosition(move.getPosition()));
+        equal(1, game.getBoard().getTypeAtPosition(g.position(4, 4)));
+    });
+
+    test("simple eval", function () {
+        var game = g.reversi();
+        game.setup();
+
+        equal(0, g.simpleEvaluator(game.getBoard()));
+        var listOfMoves = game.getLegalMoves();
+        var randomIndex = Math.floor(Math.random() * listOfMoves.length);
+        var move = listOfMoves[randomIndex];
+        var game2 = game.doMove(move);
+        equal(3, g.simpleEvaluator(game2.getBoard()));
+    });
 });
