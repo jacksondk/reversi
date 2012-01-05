@@ -335,10 +335,14 @@ var Reversi = function () {
 
         row = $("<tr>").append($("<td>").attr("colspan", "10").append($("<button>Pass</button>").click(passHandler)));
         table.append(row);
+        var state = "";
+        if (allowedMoves.length === 1 && allowedMoves[0].isGameOver()) {
+            state = "Game over";
+        }
 
         row = $("<tr>");
         row.append($("<td>").attr("colspan", "3").addClass("p1").append("Player 1")).append($("<td>").addClass("p1").append(playerOneCount));
-        row.append($("<td>").attr("colspan", "2"));
+        row.append($("<td>").attr("colspan", "2").append(state));
         row.append($("<td>").addClass("p2").append(playerTwoCount)).append($("<td>").attr("colspan", "3").addClass("p2").append("Player 2"));
         table.append(row);
 
