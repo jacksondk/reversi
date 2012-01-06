@@ -1,3 +1,5 @@
+"use strict";
+
 var Reversi = function () {
     var colName = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
     var rowName = ['1', '2', '3', '4', '5', '6', '7', '8'];
@@ -10,7 +12,7 @@ var Reversi = function () {
         that.toIndex = function () {
             return row + 8 * column;
         };
-
+		
         that.move = function (direction) {
             var newRow;
             var newColumn;
@@ -68,7 +70,7 @@ var Reversi = function () {
 
     };
 
-    board = function (spec) {
+    var board = function (spec) {
         var that = {};
         spec = spec || {};
 
@@ -251,7 +253,7 @@ var Reversi = function () {
                 return legalMoves;
             };
 
-            legalMoves = findLegalMovesForPlayer(currentPlayer);
+            var legalMoves = findLegalMovesForPlayer(currentPlayer);
 
             // If no pieces may be placed player we have two cases
             // If other player has valid moves the current player may only make a pass move
