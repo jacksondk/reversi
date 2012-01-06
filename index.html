@@ -8,7 +8,7 @@
   <style type="text/css">
     body {
       margin-top: 1.0em;
-      background-color: #fe20f5;
+      background-color: #fff;
       font-family: Helvetica, Arial, FreeSans, san-serif;
       color: #000000;
     }
@@ -28,6 +28,74 @@
     hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
     .footer { text-align:center; padding-top:30px; font-style: italic; }
   </style>
+
+  <link type="text/css" rel="stylesheet" href="src/reversi.css" />
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript" src="src/js/reversi.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var rev = Reversi();
+            var game = rev.reversi();
+            game.setup();
+
+            var opponentMove = function () {
+                var moves = game.getLegalMoves();
+                if (moves.length == 1 && moves[0].isGameOver()) {
+                    return;
+                } else {
+                    var maxIndex = moves.length;
+                    var type = $("#cputype").val();
+                    switch (type) {
+                        case "first": game.makeMove(moves[0]); break;
+                        case "last": game.makeMove(moves[maxIndex - 1]); break;
+                        case "random":
+                            var randomIndex = Math.floor(Math.random() * maxIndex);
+                            game.makeMove(moves[randomIndex]);
+                            break;
+                        case "simplebest":
+                            var bestMove = rev.getBestMove(game, rev.simpleEvaluator);
+                            game.makeMove(bestMove);
+                            break;
+                    }
+                }
+            };
+
+            var drawBoard = function () {
+                var board = rev.drawBoard(game, eventHandler, passHandler);
+                $("#board").html(board);
+            };
+
+            var passHandler = function () {
+                try {
+                    game.makeMove(rev.passMove());
+                }
+                catch (err) {
+                    window.alert(err);
+                    return;
+                }
+
+                opponentMove();
+                drawBoard();
+            };
+
+            var eventHandler = function (row, column) {
+                try {
+                    game.makeMove(rev.positionMove(rev.position(row, column)));
+                }
+                catch (err) {
+                    window.alert(err);
+                    return;
+                }
+
+                opponentMove();
+                drawBoard();
+            };
+
+
+            drawBoard();
+        });
+    </script>
+
 </head>
 
 <body>
@@ -49,14 +117,27 @@
       Reversi game
     </div>
 
-    
+    <div id="board">
+    </div>
+    <div id="cpu">
+        <table>
+            <tr>
+                <td>
+                    Oponent
+                </td>
+                <td>
+                    <select id="cputype">
+                        <option value="first">First mover</option>
+                        <option value="last">Last mover</option>
+                        <option value="random">Random</option>
+                        <option value="simplebest" selected="selected">Simple Best</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+    </div>
 
-    
-      <h2>Dependencies</h2>
-      <p>None</p>
-    
 
-    
       <h2>Install</h2>
       <p>Copy the javascript</p>
     
@@ -68,12 +149,14 @@
 
     
       <h2>Authors</h2>
-      <p>Michael Jacobsen (mic.jacobsen@gmail.com)<br/>      </p>
+      <p>Michael Jacobsen (mic.jacobsen@gmail.com)
+<br/>      </p>
     
 
     
       <h2>Contact</h2>
-      <p>Michael Jacobsen (mic.jacobsen@gmail.com)<br/>      </p>
+      <p>Michael Jacobsen (mic.jacobsen@gmail.com)
+<br/>      </p>
     
 
     <h2>Download</h2>
