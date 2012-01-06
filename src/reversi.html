@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Reversi</title>
+    <link type="text/css" rel="stylesheet" href="./reversi.css" />
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript" src="js/reversi.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var rev = Reversi();
+            var game = rev.reversi();
+            game.setup();
+
+            var opponentMove = function () {
+                var moves = game.getLegalMoves();
+                if (moves.length == 1 && moves[0].isGameOver()) {
+                    return;
+                } else {
+                    var maxIndex = moves.length;
+                    var type = $("#cputype").val();
+                    switch (type) {
+                        case "first": game.makeMove(moves[0]); break;
+                        case "last": game.makeMove(moves[maxIndex - 1]); break;
+                        case "random":
+                            var randomIndex = Math.floor(Math.random() * maxIndex);
+                            game.makeMove(moves[randomIndex]);
+                            break;
+                        case "simplebest":
+                            var bestMove = rev.getBestMove(game, rev.simpleEvaluator);
+                            game.makeMove(bestMove);
+                            break;
+                    }
+                }
+            };
+
+            var drawBoard = function () {
+                var board = rev.drawBoard(game, eventHandler, passHandler);
+                $("#board").html(board);
+            };
+
+            var passHandler = function () {
+                try {
+                    game.makeMove(rev.passMove());
+                }
+                catch (err) {
+                    window.alert(err);
+                    return;
+                }
+
+                opponentMove();
+                drawBoard();
+            };
+
+            var eventHandler = function (row, column) {
+                try {
+                    game.makeMove(rev.positionMove(rev.position(row, column)));
+                }
+                catch (err) {
+                    window.alert(err);
+                    return;
+                }
+
+                opponentMove();
+                drawBoard();
+            };
+
+
+            drawBoard();
+        });
+    </script>
+</head>
+<body>
+    <div id="board">
+    </div>
+    <div id="cpu">
+        <table>
+            <tr>
+                <td>
+                    Oponent
+                </td>
+                <td>
+                    <select id="cputype">
+                        <option value="first">First mover</option>
+                        <option value="last">Last mover</option>
+                        <option value="random">Random</option>
+                        <option value="simplebest" selected="selected">Simple Best</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
