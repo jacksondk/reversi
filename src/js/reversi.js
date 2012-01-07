@@ -449,11 +449,11 @@ var Reversi = function () {
 
         var legalMoves = game.getLegalMoves();
         var bestMove, bestMoveValue, index;
-        bestMoveValue = -1e125;
+        bestMoveValue = 1e125;
         for (index = 0; index < legalMoves.length; index++) {
             var newGame = game.doMove(legalMoves[index]);
             var value = minValueFunction(newGame, ply);
-            if (value > bestMoveValue) {
+            if (value < bestMoveValue) {
                 bestMoveValue = value;
                 bestMove = legalMoves[index];
             }
