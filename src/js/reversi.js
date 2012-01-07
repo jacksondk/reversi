@@ -399,6 +399,68 @@ var Reversi = function () {
         return moveList[bestIndex];
     };
 
+    var getBestMoveMinimax = function (game, positionEvaluator, ply) {
+        function maxValueFunction(game, ply) {
+            if (ply === 0) {
+                return positionEvaluator(game.getBoard());
+            }
+
+            var legalMoves = game.getLegalMoves();
+            if (legalMoves.length === 1 && legalMoves[0].isGameOver()) {
+                return positionEvaluator(game.getBoard());
+            }
+
+            var moveIndex;
+            var currentMax = -1e125;
+            for (moveIndex = 0; moveIndex < legalMoves.length; moveIndex++) {
+                var move = legalMoves[moveIndex];
+                var newGame = game.doMove(move);
+                var minValue = minValueFunction(newGame, ply - 1);
+                if (minValue > currentMax) {
+                    currentMax = minValue;
+                }
+            }
+            return currentMax;
+        };
+
+        function minValueFunction(game, ply) {
+            if (ply === 0) {
+                return positionEvaluator(game.getBoard());
+            }
+
+            var legalMoves = game.getLegalMoves();
+            if (legalMoves.length === 1 && legalMoves[0].isGameOver()) {
+                return positionEvaluator(game.getBoard());
+            }
+
+            var moveIndex;
+            var currentMin = 1e125;
+            for (moveIndex = 0; moveIndex < legalMoves.length; moveIndex++) {
+                var move = legalMoves[moveIndex];
+                var newGame = game.doMove(move);
+                var minValue = minValueFunction(newGame, ply - 1);
+                if (minValue < currentMin) {
+                    currentMin = minValue;
+                }
+            }
+            return currentMin;
+        };
+
+
+        var legalMoves = game.getLegalMoves();
+        var bestMove, bestMoveValue, index;
+        bestMoveValue = -1e125;
+        for (index = 0; index < legalMoves.length; index++) {
+            var newGame = game.doMove(legalMoves[index]);
+            var value = minValueFunction(newGame, ply);
+            if (value > bestMoveValue) {
+                bestMoveValue = value;
+                bestMove = legalMoves[index];
+            }
+        }
+        return bestMove;
+    };
+
     var simpleEvaluator = function (board) {
         var value = 0, row, column;
         for (row = 0; row < 8; row++) {
@@ -420,6 +482,7 @@ var Reversi = function () {
         reversi: reversi,
         drawBoard: drawBoard,
         getBestMove: getBestMove,
+        getBestMoveMinimax: getBestMoveMinimax,
         simpleEvaluator: simpleEvaluator
     };
 };

@@ -299,4 +299,11 @@ $(document).ready(function () {
         equal(7, position.getRow());
         equal(7, position.getColumn());
     });
+
+    test("min-max", function () {
+        var game = g.reversi();
+        game.setup();
+
+        var move = g.getBestMoveMinimax(game, g.simpleEvaluator, 2);
+    });
 });

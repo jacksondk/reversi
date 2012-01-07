@@ -16,6 +16,7 @@
                 if (moves.length == 1 && moves[0].isGameOver()) {
                     return;
                 } else {
+                    var bestMove;
                     var maxIndex = moves.length;
                     var type = $("#cputype").val();
                     switch (type) {
@@ -26,7 +27,11 @@
                             game.makeMove(moves[randomIndex]);
                             break;
                         case "simplebest":
-                            var bestMove = rev.getBestMove(game, rev.simpleEvaluator);
+                            bestMove = rev.getBestMove(game, rev.simpleEvaluator);
+                            game.makeMove(bestMove);
+                            break;
+                        case "minimax":
+                            bestMove = rev.getBestMoveMinimax(game, rev.simpleEvaluator, 2);
                             game.makeMove(bestMove);
                             break;
                     }
@@ -83,7 +88,8 @@
                         <option value="first">First mover</option>
                         <option value="last">Last mover</option>
                         <option value="random">Random</option>
-                        <option value="simplebest" selected="selected">Simple Best</option>
+                        <option value="simplebest">Simple Best</option>
+                        <option value="minimax" selected="selected">Minimax</option>
                     </select>
                 </td>
             </tr>
