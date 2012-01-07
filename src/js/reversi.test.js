@@ -249,4 +249,54 @@ $(document).ready(function () {
         var game2 = game.doMove(move);
         equal(3, g.simpleEvaluator(game2.getBoard()));
     });
+
+    test("simple max evel", function () {
+        var game = g.reversi();
+        game.setup();
+
+        var row, column;
+        var board = game.getBoard();
+        board.clear();
+        for (row = 0; row < 8; row++) {
+            board.setTypeAtPosition(g.position(row, 0), 1);
+            for (column = 1; column < row; column++) {
+                board.setTypeAtPosition(g.position(row, column), 2);
+            }
+        }
+        $("#test_output").append(game.getBoard().toString());
+        var listOfMoves = game.getLegalMoves();
+        equal(9, listOfMoves.length);
+
+        var move = g.getBestMove(game, g.simpleEvaluator);
+        equal(false, move.isPassMove());
+        equal(false, move.isGameOver());
+        var position = move.getPosition();
+        equal(7, position.getRow());
+        equal(7, position.getColumn());
+    });
+
+    test("simple max evel - player 2", function () {
+        var game = g.reversi();
+        game.setup();
+        game.setCurrentPlayer(2);
+        var row, column;
+        var board = game.getBoard();
+        board.clear();
+        for (row = 0; row < 8; row++) {
+            board.setTypeAtPosition(g.position(row, 0), 2);
+            for (column = 1; column < row; column++) {
+                board.setTypeAtPosition(g.position(row, column), 1);
+            }
+        }
+        $("#test_output").append(game.getBoard().toString());
+        var listOfMoves = game.getLegalMoves();
+        equal(9, listOfMoves.length);
+
+        var move = g.getBestMove(game, g.simpleEvaluator);
+        equal(false, move.isPassMove());
+        equal(false, move.isGameOver());
+        var position = move.getPosition();
+        equal(7, position.getRow());
+        equal(7, position.getColumn());
+    });
 });

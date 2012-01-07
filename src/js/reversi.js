@@ -1,3 +1,5 @@
+/*jslint vars: true, white: true, plusplus: true, maxerr: 50, indent: 4 */
+
 var Reversi = function () {
     "use strict";
 
@@ -108,6 +110,12 @@ var Reversi = function () {
         that.copy = function () {
             return board({ board: myBoard });
         };
+        that.clear = function () {
+            var index;
+            for (index = 0; index < 8 * 8; index++) {
+                myBoard[index] = 0;
+            }
+        };
 
         that.getTypeAtPosition = getTypeAtPosition;
 
@@ -172,6 +180,9 @@ var Reversi = function () {
 
         that.getCurrentPlayer = function () {
             return currentPlayer;
+        };
+        that.setCurrentPlayer = function (player) {
+            currentPlayer = player;
         };
 
         var getTurnedPieces = function (board, position, type) {
@@ -374,12 +385,15 @@ var Reversi = function () {
         var bestScore = -1000;
         var bestIndex = -1;
         var i;
+        var playerSign = 1;
+        if (game.getCurrentPlayer() == 2) { playerSign = -1; }
 
         for (i = 0; i < moveList.length; i++) {
             var newGame = game.doMove(moveList[i]);
-            var newGameValue = positionEvaluator(newGame.getBoard());
+            var newGameValue = positionEvaluator(newGame.getBoard()) * playerSign;
             if (newGameValue > bestScore) {
                 bestIndex = i;
+                bestScore = newGameValue;
             }
         }
         return moveList[bestIndex];
