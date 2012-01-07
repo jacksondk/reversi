@@ -1,11 +1,17 @@
+/*jslint vars: true, white: true, plusplus: true, maxerr: 50, indent: 4 */
+
 var Reversi = function () {
+    "use strict";
+
+    // Column names
     var colName = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+    // Row names
     var rowName = ['1', '2', '3', '4', '5', '6', '7', '8'];
 
     var position = function (row, column) {
         var that = {};
 
-        that.show = "" + row + "," + colName[column];
+        that.show = row.toString() + "," + colName[column];
 
         that.toIndex = function () {
             return row + 8 * column;
@@ -25,14 +31,15 @@ var Reversi = function () {
                 case 7: newRow = row + 1; newColumn = column - 1; break;
                 default: throw "Not valid direction";
             }
-            if (newRow >= 0 && newRow <= 7 && newColumn >= 0 && newColumn <= 7)
+            if (newRow >= 0 && newRow <= 7 && newColumn >= 0 && newColumn <= 7) {
                 return position(newRow, newColumn);
-            else
+            } else {
                 return null;
+            }
         };
 
         that.getRow = function () { return row; };
-        that.getColumn = function () { return column };
+        that.getColumn = function () { return column; };
 
         return that;
     };
@@ -40,9 +47,9 @@ var Reversi = function () {
     var passMove = function () {
         var that = {};
 
-        that.isPassMove = function () { return true; }
-        that.isGameOver = function () { return false; }
-        that.getPosition = function () { return null; }
+        that.isPassMove = function () { return true; };
+        that.isGameOver = function () { return false; };
+        that.getPosition = function () { return null; };
 
         return that;
     };
@@ -50,9 +57,9 @@ var Reversi = function () {
     var gameOverMove = function () {
         var that = {};
 
-        that.isPassMove = function () { return false; }
-        that.isGameOver = function () { return true; }
-        that.getPosition = function () { return null; }
+        that.isPassMove = function () { return false; };
+        that.isGameOver = function () { return true; };
+        that.getPosition = function () { return null; };
 
         return that;
     };
@@ -60,72 +67,82 @@ var Reversi = function () {
     var positionMove = function (position) {
         var that = {};
         var movePosition = position;
-        that.isPassMove = function () { return false; }
-        that.isGameOver = function () { return false; }
-        that.getPosition = function () { return movePosition; }
+        that.isPassMove = function () { return false; };
+        that.isGameOver = function () { return false; };
+        that.getPosition = function () { return movePosition; };
 
         return that;
 
     };
 
-    board = function (spec) {
-        var that = {};
+    var board = function (spec) {
+        var that = {}, i;
         spec = spec || {};
 
         var myBoard = [];
 
-        if (spec.board != null) {
-            for (var i = 0; i < 8 * 8; i++) {
+        if (spec.board !== undefined) {
+            for (i = 0; i < 8 * 8; i++) {
                 myBoard[i] = spec.board[i];
             }
         } else {
-            for (var i = 0; i < 8 * 8; i++) {
+            for (i = 0; i < 8 * 8; i++) {
                 myBoard[i] = 0;
             }
         }
 
         that.setTypeAtPosition = function (position, type) {
             var index = position.toIndex();
-            if (index >= 0 && index < 8 * 8)
+            if (index >= 0 && index < 8 * 8) {
                 myBoard[index] = type;
+            }
         };
 
         var getTypeAtPosition = function (position) {
             var index = position.toIndex();
-            if (index >= 0 && index < 8 * 8)
+            if (index >= 0 && index < 8 * 8) {
                 return myBoard[index];
-            else
+            } else {
                 return -1;
+            }
         };
 
-        that.copy = function () { return board({ "board": myBoard }); }
+        that.copy = function () {
+            return board({ board: myBoard });
+        };
+        that.clear = function () {
+            var index;
+            for (index = 0; index < 8 * 8; index++) {
+                myBoard[index] = 0;
+            }
+        };
 
         that.getTypeAtPosition = getTypeAtPosition;
 
         that.toString = function () {
+            var column, row;
             var string = "<table border='1px'>";
-            var string = string + "<tr><td></td>";
-            for (var col = 0; col < 8; col++) {
-                string = string + "<td>" + colName[col] + "</td>";
+            string = string + "<tr><td></td>";
+            for (column = 0; column < 8; column++) {
+                string = string + "<td>" + colName[column] + "</td>";
             }
-            for (var row = 0; row < 8; row++) {
+            for (row = 0; row < 8; row++) {
                 string = string + "<tr><td>" + rowName[row] + "</td>";
-                for (var column = 0; column < 8; column++) {
+                for (column = 0; column < 8; column++) {
                     var type = getTypeAtPosition(position(row, column));
-                    if (type == 1) {
+                    if (type === 1) {
                         string = string + "<td>x</td>";
-                    } else if (type == 2) {
+                    } else if (type === 2) {
                         string = string + "<td>o</td>";
-                    }
-                    else {
+                    } else {
                         string = string + "<td></td>";
                     }
                 }
                 string = string + "<td>" + rowName[row] + "</td></tr>";
-            };
-            var string = string + "<tr><td></td>";
-            for (var col = 0; col < 8; col++) {
-                string = string + "<td>" + colName[col] + "</td>";
+            }
+            string = string + "<tr><td></td>";
+            for (column = 0; column < 8; column++) {
+                string = string + "<td>" + colName[column] + "</td>";
             }
             return string + "</table>";
         };
@@ -138,14 +155,14 @@ var Reversi = function () {
         spec = spec || {};
 
         var b;
-        if (spec.board != null) {
+        if (spec.board !== undefined) {
             b = spec.board.copy();
         }
         var currentPlayer = spec.currentPlayer || 1;
 
         var otherPlayer = function (type) {
-            if (type == 1) return 2;
-            if (type == 2) return 1;
+            if (type === 1) { return 2; }
+            if (type === 2) { return 1; }
         };
 
         that.setup = function () {
@@ -164,27 +181,29 @@ var Reversi = function () {
         that.getCurrentPlayer = function () {
             return currentPlayer;
         };
+        that.setCurrentPlayer = function (player) {
+            currentPlayer = player;
+        };
 
         var getTurnedPieces = function (board, position, type) {
+            var direction;
             var otherColor = otherPlayer(type);
             var turnList = [];
-            if (board.getTypeAtPosition(position) != 0)
-                return turnList;
+            if (board.getTypeAtPosition(position) !== 0) { return turnList; }
 
-            for (var direction = 0; direction < 8; direction++) {
+            for (direction = 0; direction < 8; direction++) {
                 var newPosition = position.move(direction);
-                if (newPosition == null)
-                    continue;
+                if (newPosition === null) { continue; }
                 var typeAtPosition = b.getTypeAtPosition(newPosition);
                 var possibleList = [];
-                while (typeAtPosition == otherColor) {
+                while (typeAtPosition === otherColor) {
                     possibleList.push(newPosition);
                     newPosition = newPosition.move(direction);
-                    if (newPosition == null) {
+                    if (newPosition === null) {
                         break;
                     }
                     typeAtPosition = b.getTypeAtPosition(newPosition);
-                    if (typeAtPosition == type) {
+                    if (typeAtPosition === type) {
                         turnList = turnList.concat(possibleList);
                     }
                 }
@@ -195,11 +214,9 @@ var Reversi = function () {
 
         var makePassMove = function () {
             var allowedMoveList = getLegalMoves();
-            if (allowedMoveList.length > 1)
-                throw "Not allowed to pass when multiple possible moves exist";
+            if (allowedMoveList.length > 1) { throw "Not allowed to pass when multiple possible moves exist"; }
 
-            if (allowedMoveList[0].isGameOver())
-                throw "Pass move not allowed when game is over";
+            if (allowedMoveList[0].isGameOver()) { throw "Pass move not allowed when game is over"; }
 
             if (allowedMoveList[0].isPassMove()) {
                 currentPlayer = otherPlayer(currentPlayer);
@@ -215,21 +232,21 @@ var Reversi = function () {
         };
 
         that.makeMove = function (positionMove) {
+            var index;
             if (positionMove.isPassMove()) {
                 makePassMove();
                 return;
             }
 
             var position = positionMove.getPosition();
-            if (position == null)
-                throw "Not a valid move";
-            var turnList = getTurnedPieces(b, position, currentPlayer);
-            if (turnList.length == 0)
-                throw "Illegal move";
+            if (position === null) { throw "Not a valid move"; }
 
-            for (var index = 0; index < turnList.length; index++) {
+            var turnList = getTurnedPieces(b, position, currentPlayer);
+            if (turnList.length === 0) { throw "Illegal move"; }
+
+            for (index = 0; index < turnList.length; index++) {
                 b.setTypeAtPosition(turnList[index], currentPlayer);
-            };
+            }
             b.setTypeAtPosition(position, currentPlayer);
             currentPlayer = otherPlayer(currentPlayer);
         };
@@ -238,11 +255,14 @@ var Reversi = function () {
 
             // Find all legal moves where a piece is placed on board
             var findLegalMovesForPlayer = function (player) {
-                var legalMoves = [];
-                for (var row = 0; row < 8; row++) {
-                    for (var column = 0; column < 8; column++) {
-                        var tryLocation = position(row, column);
-                        var turnList = getTurnedPieces(b, tryLocation, player);
+                var row, column, legalMoves = [];
+                var tryLocation;
+                var turnList;
+
+                for (row = 0; row < 8; row++) {
+                    for (column = 0; column < 8; column++) {
+                        tryLocation = position(row, column);
+                        turnList = getTurnedPieces(b, tryLocation, player);
                         if (turnList.length > 0) {
                             legalMoves.push(positionMove(tryLocation));
                         }
@@ -251,14 +271,14 @@ var Reversi = function () {
                 return legalMoves;
             };
 
-            legalMoves = findLegalMovesForPlayer(currentPlayer);
+            var legalMoves = findLegalMovesForPlayer(currentPlayer);
 
             // If no pieces may be placed player we have two cases
             // If other player has valid moves the current player may only make a pass move
             // If other player also has no valid moves the game has ended.
-            if (legalMoves.length == 0) {
+            if (legalMoves.length === 0) {
                 var otherPlayerLegalMoves = findLegalMovesForPlayer(otherPlayer(currentPlayer));
-                if (otherPlayerLegalMoves.length == 0) {
+                if (otherPlayerLegalMoves.length === 0) {
                     legalMoves.push(gameOverMove());
                 } else {
                     legalMoves.push(passMove());
@@ -297,6 +317,12 @@ var Reversi = function () {
         }
         row.append($("<td>"));
 
+        var internalClickEventHandler = function (event) {
+            var r = event.data.row;
+            var c = event.data.column;
+            clickEventHandler(r, c);
+        };
+
         for (rowIndex = 0; rowIndex < 8; rowIndex++) {
             row = $("<tr>").append($("<td>").append(rowName[rowIndex]));
             for (columnIndex = 0; columnIndex < 8; columnIndex++) {
@@ -304,33 +330,30 @@ var Reversi = function () {
                 var type = board.getTypeAtPosition(position(rowIndex, columnIndex));
                 var sign = " ";
                 var field = $("<td>");
-                if (type == 1) {
+                if (type === 1) {
                     playerOneCount = playerOneCount + 1;
                     field.addClass("p1");
                 }
-                if (type == 2) {
+                if (type === 2) {
                     playerTwoCount = playerTwoCount + 1;
                     field.addClass("p2");
                 }
                 var allowed = false;
-                if (type == 0) {
-                    for (var movesIndex = 0; movesIndex < allowedMoves.length; movesIndex++) {
+                var movesIndex;
+                if (type === 0) {
+                    for (movesIndex = 0; movesIndex < allowedMoves.length; movesIndex++) {
                         var move = allowedMoves[movesIndex];
-                        if (move.isPassMove() == false && move.isGameOver() == false) {
+                        if (move.isPassMove() === false && move.isGameOver() === false) {
                             var location = move.getPosition();
-                            if (location.getRow() == rowIndex && location.getColumn() == columnIndex) {
+                            if (location.getRow() === rowIndex && location.getColumn() === columnIndex) {
                                 field.addClass("allowed");
                             }
                         }
                     }
                 }
                 // Draw field
-                if (type == 0) {
-                    field.click({ row: rowIndex, column: columnIndex }, function (event) {
-                        var r = event.data.row;
-                        var c = event.data.column;
-                        clickEventHandler(r, c);
-                    });
+                if (type === 0) {
+                    field.click({ row: rowIndex, column: columnIndex }, internalClickEventHandler);
                 }
                 row.append(field);
             }
@@ -361,23 +384,28 @@ var Reversi = function () {
         var moveList = game.getLegalMoves();
         var bestScore = -1000;
         var bestIndex = -1;
-        for (var i = 0; i < moveList.length; i++) {
+        var i;
+        var playerSign = 1;
+        if (game.getCurrentPlayer() == 2) { playerSign = -1; }
+
+        for (i = 0; i < moveList.length; i++) {
             var newGame = game.doMove(moveList[i]);
-            var newGameValue = positionEvaluator(newGame.getBoard());
+            var newGameValue = positionEvaluator(newGame.getBoard()) * playerSign;
             if (newGameValue > bestScore) {
                 bestIndex = i;
+                bestScore = newGameValue;
             }
         }
         return moveList[bestIndex];
     };
 
     var simpleEvaluator = function (board) {
-        var value = 0;
-        for (var row = 0; row < 8; row++) {
-            for (var column = 0; column < 8; column++) {
+        var value = 0, row, column;
+        for (row = 0; row < 8; row++) {
+            for (column = 0; column < 8; column++) {
                 var type = board.getTypeAtPosition(position(row, column));
-                if (type === 1) value++;
-                if (type === 2) value--;
+                if (type === 1) { value++; }
+                if (type === 2) { value--; }
             }
         }
         return value;
