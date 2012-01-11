@@ -7,70 +7,7 @@
     <script type="text/javascript" src="js/reversi.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            var rev = Reversi();
-            var game = rev.reversi();
-            game.setup();
-
-            var opponentMove = function () {
-                var moves = game.getLegalMoves();
-                if (moves.length == 1 && moves[0].isGameOver()) {
-                    return;
-                } else {
-                    var bestMove;
-                    var maxIndex = moves.length;
-                    var type = $("#cputype").val();
-                    switch (type) {
-                        case "first": game.makeMove(moves[0]); break;
-                        case "last": game.makeMove(moves[maxIndex - 1]); break;
-                        case "random":
-                            var randomIndex = Math.floor(Math.random() * maxIndex);
-                            game.makeMove(moves[randomIndex]);
-                            break;
-                        case "simplebest":
-                            bestMove = rev.getBestMove(game, rev.simpleEvaluator);
-                            game.makeMove(bestMove);
-                            break;
-                        case "minimax":
-                            bestMove = rev.getBestMoveMinimax(game, rev.simpleEvaluator, 4);
-                            game.makeMove(bestMove);
-                            break;
-                    }
-                }
-            };
-
-            var drawBoard = function () {
-                var board = rev.drawBoard(game, eventHandler, passHandler);
-                $("#board").html(board);
-            };
-
-            var passHandler = function () {
-                try {
-                    game.makeMove(rev.passMove());
-                }
-                catch (err) {
-                    window.alert(err);
-                    return;
-                }
-
-                opponentMove();
-                drawBoard();
-            };
-
-            var eventHandler = function (row, column) {
-                try {
-                    game.makeMove(rev.positionMove(rev.position(row, column)));
-                }
-                catch (err) {
-                    window.alert(err);
-                    return;
-                }
-
-                opponentMove();
-                drawBoard();
-            };
-
-
-            drawBoard();
+		Reversi().runGame();
         });
     </script>
 </head>

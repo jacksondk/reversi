@@ -1,6 +1,7 @@
 /// <reference path="reversi.js"/>
 
 $(document).ready(function () {
+    module("Basic game mechanics");
     g = Reversi();
 
     test("getIndex of position", function () {
@@ -300,10 +301,48 @@ $(document).ready(function () {
         equal(7, position.getColumn());
     });
 
-    test("min-max", function () {
-        var game = g.reversi();
-        game.setup();
+    module("minimax stuff");
 
-        var move = g.getBestMoveMinimax(game, g.simpleEvaluator, 2);
+    test("min-max", function () {
+
+	function node( value, subnodes ) {
+	    return { value: value, next: subnodes };
+	};
+	function eval( state ) {
+	    return state.value;
+	};
+	function getActions( state ) {
+	    return state.next || [];
+	};
+	function doAction( state, action ) {
+	    return action;
+	};
+    
+	var tree = node(3,
+	    [node(2, [node(4,null), node(2,[node(2,null),node(3,null)]),node(5,null)]),
+	     node(1, [node(1,null), node(8,null),node(6,null)])]);
+
+        var move = g.minimax(tree, eval, getActions, doAction, 3);
+	equal( move.move , tree.next[0] );
+	equal( move.value , 3 );
+    });
+
+    test("game-minimax", function() {
+	function eval( game ) {
+	    return g.simpleEvaluator(game.getBoard());
+	};
+	function getActions( game ) {
+	    var actions = game.getLegalMoves();
+	    return actions;
+	};
+	function doAction( state, action ) {
+	    var newState = state.doMove( action );
+	    return newState;
+	};
+
+	var game = g.reversi();
+	game.setup();
+
+	var move = g.minimax( game, eval, getActions, doAction, 2 );
     });
 });

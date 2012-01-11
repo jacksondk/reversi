@@ -399,6 +399,72 @@ var Reversi = function () {
         return moveList[bestIndex];
     };
 
+    var minimax = function ( state, evaluationFunction, getActionsFunction, performActionFunction, ply ) {
+	function leaf( state, ply ) {
+	    if (ply === 0) {
+		return { value: evaluationFunction( state ) };
+	    }
+	    var actions = getActionsFunction( state );
+	    if (actions.length === 0) {
+		return { value: evaluationFunction( state ) };
+	    }
+	    return { actions: actions };
+	}
+
+	function maxValueFunction( state, ply ) {
+	    var actions = leaf( state, ply );
+            if (actions.value !== undefined ) {
+		return actions.value;
+	    }		
+
+	    var actionIndex;
+	    var maxValue = -1e125;
+	    actions = actions.actions;
+	    for (actionIndex = 0; actionIndex < actions.length; actionIndex++) {
+		var action = actions[actionIndex];
+		var newState = performActionFunction( state, action );
+		var minValue = minValueFunction( newState, ply-1 );
+		if ( minValue > maxValue ) {
+		    maxValue = minValue;
+		}
+	    }
+	    return maxValue;
+	}
+
+	function minValueFunction( state, ply ) {
+	    var actions = leaf( state, ply );
+	    if (actions.value !== undefined ) {
+		return actions.value;
+	    }
+
+	    var actionIndex;
+	    var minValue = 1e125;
+	    actions = actions.actions;
+	    for (actionIndex = 0; actionIndex < actions.length; actionIndex++) {
+		var action = actions[actionIndex];
+		var newState = performActionFunction( state, action );
+		var maxValue = maxValueFunction( newState, ply-1 );
+		if ( minValue > maxValue ) {
+		    minValue = maxValue;
+		}
+	    }
+	    return minValue;
+	}
+
+        var stateActions = getActionsFunction(state);
+        var bestMove, bestMoveValue, index;
+        bestMoveValue = -1e125;
+        for (index = 0; index < stateActions.length; index++) {
+            var newState = performActionFunction( state, stateActions[index]);
+            var value = minValueFunction(newState, ply);
+            if (value > bestMoveValue) {
+                bestMoveValue = value;
+                bestMove = stateActions[index];
+            }
+        }
+        return { move: bestMove, value: bestMoveValue};
+    }
+
     var getBestMoveMinimax = function (game, positionEvaluator, ply) {
         function maxValueFunction(game, ply) {
             if (ply === 0) {
@@ -473,6 +539,72 @@ var Reversi = function () {
         return value;
     };
 
+    var runGame = function () {
+	var game = reversi();
+	game.setup();
+
+	var opponentMove = function () {
+	    var moves = game.getLegalMoves();
+	    if (moves.length == 1 && moves[0].isGameOver()) {
+		return;
+	    } else {
+		var bestMove;
+		var maxIndex = moves.length;
+		var type = $("#cputype").val();
+		switch (type) {
+		    case "first": game.makeMove(moves[0]); break;
+		    case "last": game.makeMove(moves[maxIndex - 1]); break;
+		    case "random":
+				 var randomIndex = Math.floor(Math.random() * maxIndex);
+				 game.makeMove(moves[randomIndex]);
+				 break;
+		    case "simplebest":
+				 bestMove = getBestMove(game, simpleEvaluator);
+				 game.makeMove(bestMove);
+				 break;
+		    case "minimax":
+				 bestMove = getBestMoveMinimax(game, simpleEvaluator, 4);
+				 game.makeMove(bestMove);
+				 break;
+		}
+	    }
+	};
+
+	var drawBoardWithEventHandlers = function () {
+	    var board = drawBoard(game, eventHandler, passHandler);
+	    $("#board").html(board);
+	};
+
+	var passHandler = function () {
+	    try {
+		game.makeMove(passMove());
+	    }
+	    catch (err) {
+		window.alert(err);
+		return;
+	    }
+
+	    opponentMove();
+	    drawBoardWithEventHandlers();
+	};
+
+	var eventHandler = function (row, column) {
+	    try {
+		game.makeMove(positionMove(position(row, column)));
+	    }
+	    catch (err) {
+		window.alert(err);
+		return;
+	    }
+
+	    opponentMove();
+	    drawBoardWithEventHandlers();
+	};
+
+
+	drawBoardWithEventHandlers();
+    };
+
     return {
         position: position,
         gameOverMove: gameOverMove,
@@ -483,6 +615,8 @@ var Reversi = function () {
         drawBoard: drawBoard,
         getBestMove: getBestMove,
         getBestMoveMinimax: getBestMoveMinimax,
-        simpleEvaluator: simpleEvaluator
+        simpleEvaluator: simpleEvaluator,
+	runGame: runGame,
+	minimax: minimax
     };
 };
