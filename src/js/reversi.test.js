@@ -22,7 +22,6 @@ $(document).ready(function () {
         equal(pos.getColumn(), 3);
 
         var p2 = pos.move(1);
-        console.log(p2);
         equal(p2.getRow(), 4);
         equal(p2.getColumn(), 4);
 
@@ -347,13 +346,40 @@ $(document).ready(function () {
 	};
     
 	var tree = node(3,
-	    [node(2, [node(4,null), node(2,[node(2,null),node(3,null)]),node(5,null)]),
-	     node(1, [node(1,null), node(8,null),node(6,null)])]);
+	    [node(2, 
+                [node(4,null), 
+                 node(2,
+                     [node(2,null),
+                      node(3,null)]),
+                 node(5,null)]),
+	     node(1, 
+                 [node(1,null),
+                  node(8,null),
+                  node(6,null)])]);
 
-        var move = g.minimax(tree, eval, getActions, doAction, 3);
+        var move = g.minimax(tree, eval, getActions, doAction, 1);
 	equal( move.move , tree.next[0] );
-	equal( move.value , 3 );
-        equal( evalCount, 7 );
+	equal( move.value , 2 );
+        equal( move.visited, 3 );
+
+        move = g.minimax(tree, eval, getActions, doAction, 2);
+        equal( move.move, tree.next[0] );
+        equal( move.value, 2 );
+        equal( move.visited, 9 );
+
+        move = g.minimax(tree, eval, getActions, doAction, 2, true);
+        equal( move.move, tree.next[0] );
+        equal( move.value, 2 );
+        equal( move.visited , 9 );
+
+        move = g.minimax(tree, eval, getActions, doAction, 3 );
+        equal( move.move, tree.next[0] );
+        equal( move.value, 3 );
+        equal( move.visited, 11);
+
+        move = g.minimax( tree, eval, getActions, doAction, 3, true );
+        equal( move.value, 3 );
+        equal( move.visited, 11 );
     });
 
     test("game-minimax", function() {
@@ -373,6 +399,7 @@ $(document).ready(function () {
 	game.setup();
 
 	var move = g.minimax( game, eval, getActions, doAction, 2 );
+        console.log( move );
     });
 
 });

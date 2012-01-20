@@ -399,24 +399,27 @@ var Reversi = function () {
         return moveList[bestIndex];
     };
 
-    var minimax = function ( state, evaluationFunction, getActionsFunction, performActionFunction, ply ) {
+    var minimax = function ( state, evaluationFunction, getActionsFunction, performActionFunction, ply, withPruning ) {
         var nodes = 0;
+        var evaluations = 0;
+        withPruning = withPruning || false;
 
         // Test if we are at a leaf either because of search depth or because of end-of-game.	
         function leaf( state, ply ) {
-            nodes = nodes + 1;
 	    if (ply === 0) {
+                evaluations = evaluations + 1;
 		return { value: evaluationFunction( state ) };
 	    }
 	    var actions = getActionsFunction( state );
 	    if (actions.length === 0) {
+                evaluations = evaluations + 1;
 		return { value: evaluationFunction( state ) };
 	    }
 	    return { actions: actions };
 	}
 
         // Maximize over state
-	function maxValueFunction( state, ply ) {
+	function maxValueFunction( state, ply, alpha, beta ) {
             nodes = nodes + 1;
 	    var actions = leaf( state, ply );
             if (actions.value !== undefined ) {
@@ -430,17 +433,22 @@ var Reversi = function () {
 	    for (actionIndex = 0; actionIndex < actions.length; actionIndex++) {
 		var action = actions[actionIndex];
 		var newState = performActionFunction( state, action );
-		var min = minValueFunction( newState, ply-1 );
-		if ( min.value > maxValue ) {
-		    maxValue = min.value;
+		var min = minValueFunction( newState, ply-1, alpha, beta );
+                var v = min.value;
+		if ( v > maxValue ) {
+		    maxValue = v;
                     maxIndex = actionIndex;
 		}
+                if ( v >= beta && withPruning ) {
+                    break;
+                }
+                alpha = v > alpha ? v : alpha;
 	    }
-	    return { value: maxValue, index: maxIndex };
+	    return { value: maxValue, index: maxIndex, move: actions[maxIndex] };
 	}
 
         // Minimize over state
-	function minValueFunction( state, ply ) {
+	function minValueFunction( state, ply, alpha, beta ) {
             nodes = nodes + 1;
 	    var actions = leaf( state, ply );
 	    if (actions.value !== undefined ) {
@@ -454,27 +462,26 @@ var Reversi = function () {
 	    for (actionIndex = 0; actionIndex < actions.length; actionIndex++) {
 		var action = actions[actionIndex];
 		var newState = performActionFunction( state, action );
-		var max = maxValueFunction( newState, ply-1 );
-		if ( minValue > max.value ) {
-		    minValue = max.value;
+		var max = maxValueFunction( newState, ply-1, alpha, beta );
+                var v = max.value;
+		if ( minValue > v ) {
+		    minValue = v;
                     minIndex = actionIndex;
 		}
+                if ( v <= alpha && withPruning){
+                    break; 
+                }
+                beta = v < beta ? v : beta;
 	    }
-	    return { value: minValue, index: minIndex };
+	    return { value: minValue, index: minIndex, move: actions[minIndex] };
 	}
 
-        var stateActions = getActionsFunction(state);
-        var bestMove, bestMoveValue, index;
-        bestMoveValue = -1e125;
-        for (index = 0; index < stateActions.length; index++) {
-            var newState = performActionFunction( state, stateActions[index]);
-            var value = minValueFunction(newState, ply);
-            if (value.value > bestMoveValue) {
-                bestMoveValue = value.value;
-                bestMove = stateActions[index];
-            }
-        }
-        return { move: bestMove, value: bestMoveValue, visited: nodes};
+        var m = maxValueFunction( state, ply, -1e125, 1e125 );
+
+        return { move: m.move
+               , value: m.value
+               , visited: nodes
+               , evaluations: evaluations };
     }
 
     // Adapt the reversi game for the minimax function
