@@ -400,7 +400,11 @@ var Reversi = function () {
     };
 
     var minimax = function ( state, evaluationFunction, getActionsFunction, performActionFunction, ply ) {
-	function leaf( state, ply ) {
+        var nodes = 0;
+
+        // Test if we are at a leaf either because of search depth or because of end-of-game.	
+        function leaf( state, ply ) {
+            nodes = nodes + 1;
 	    if (ply === 0) {
 		return { value: evaluationFunction( state ) };
 	    }
@@ -411,44 +415,52 @@ var Reversi = function () {
 	    return { actions: actions };
 	}
 
+        // Maximize over state
 	function maxValueFunction( state, ply ) {
+            nodes = nodes + 1;
 	    var actions = leaf( state, ply );
             if (actions.value !== undefined ) {
-		return actions.value;
+		return {value: actions.value, index: -1};
 	    }		
 
 	    var actionIndex;
 	    var maxValue = -1e125;
+            var maxIndex = -1;
 	    actions = actions.actions;
 	    for (actionIndex = 0; actionIndex < actions.length; actionIndex++) {
 		var action = actions[actionIndex];
 		var newState = performActionFunction( state, action );
-		var minValue = minValueFunction( newState, ply-1 );
-		if ( minValue > maxValue ) {
-		    maxValue = minValue;
+		var min = minValueFunction( newState, ply-1 );
+		if ( min.value > maxValue ) {
+		    maxValue = min.value;
+                    maxIndex = actionIndex;
 		}
 	    }
-	    return maxValue;
+	    return { value: maxValue, index: maxIndex };
 	}
 
+        // Minimize over state
 	function minValueFunction( state, ply ) {
+            nodes = nodes + 1;
 	    var actions = leaf( state, ply );
 	    if (actions.value !== undefined ) {
-		return actions.value;
+		return { value: actions.value, index: -1 };
 	    }
 
 	    var actionIndex;
 	    var minValue = 1e125;
+            var minIndex = -1;
 	    actions = actions.actions;
 	    for (actionIndex = 0; actionIndex < actions.length; actionIndex++) {
 		var action = actions[actionIndex];
 		var newState = performActionFunction( state, action );
-		var maxValue = maxValueFunction( newState, ply-1 );
-		if ( minValue > maxValue ) {
-		    minValue = maxValue;
+		var max = maxValueFunction( newState, ply-1 );
+		if ( minValue > max.value ) {
+		    minValue = max.value;
+                    minIndex = actionIndex;
 		}
 	    }
-	    return minValue;
+	    return { value: minValue, index: minIndex };
 	}
 
         var stateActions = getActionsFunction(state);
@@ -457,74 +469,30 @@ var Reversi = function () {
         for (index = 0; index < stateActions.length; index++) {
             var newState = performActionFunction( state, stateActions[index]);
             var value = minValueFunction(newState, ply);
-            if (value > bestMoveValue) {
-                bestMoveValue = value;
+            if (value.value > bestMoveValue) {
+                bestMoveValue = value.value;
                 bestMove = stateActions[index];
             }
         }
-        return { move: bestMove, value: bestMoveValue};
+        return { move: bestMove, value: bestMoveValue, visited: nodes};
     }
 
+    // Adapt the reversi game for the minimax function
     var getBestMoveMinimax = function (game, positionEvaluator, ply) {
-        function maxValueFunction(game, ply) {
-            if (ply === 0) {
-                return positionEvaluator(game.getBoard());
-            }
 
-            var legalMoves = game.getLegalMoves();
-            if (legalMoves.length === 1 && legalMoves[0].isGameOver()) {
-                return positionEvaluator(game.getBoard());
-            }
-
-            var moveIndex;
-            var currentMax = -1e125;
-            for (moveIndex = 0; moveIndex < legalMoves.length; moveIndex++) {
-                var move = legalMoves[moveIndex];
-                var newGame = game.doMove(move);
-                var minValue = minValueFunction(newGame, ply - 1);
-                if (minValue > currentMax) {
-                    currentMax = minValue;
-                }
-            }
-            return currentMax;
+        function evaluate( game ) {
+            return positionEvaluator( game.getBoard() );
+        };
+        function getActions( game ){
+            return game.getLegalMoves();
+        };
+        function doAction( game, action ) {
+            var newGame = game.doMove( action );
+            return newGame;
         };
 
-        function minValueFunction(game, ply) {
-            if (ply === 0) {
-                return positionEvaluator(game.getBoard());
-            }
-
-            var legalMoves = game.getLegalMoves();
-            if (legalMoves.length === 1 && legalMoves[0].isGameOver()) {
-                return positionEvaluator(game.getBoard());
-            }
-
-            var moveIndex;
-            var currentMin = 1e125;
-            for (moveIndex = 0; moveIndex < legalMoves.length; moveIndex++) {
-                var move = legalMoves[moveIndex];
-                var newGame = game.doMove(move);
-                var minValue = minValueFunction(newGame, ply - 1);
-                if (minValue < currentMin) {
-                    currentMin = minValue;
-                }
-            }
-            return currentMin;
-        };
-
-
-        var legalMoves = game.getLegalMoves();
-        var bestMove, bestMoveValue, index;
-        bestMoveValue = 1e125;
-        for (index = 0; index < legalMoves.length; index++) {
-            var newGame = game.doMove(legalMoves[index]);
-            var value = minValueFunction(newGame, ply);
-            if (value < bestMoveValue) {
-                bestMoveValue = value;
-                bestMove = legalMoves[index];
-            }
-        }
-        return bestMove;
+        var move = minimax( game, evaluate, getActions, doAction, ply );
+        return move.move;
     };
 
     var simpleEvaluator = function (board) {

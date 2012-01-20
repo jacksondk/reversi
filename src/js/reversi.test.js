@@ -305,10 +305,12 @@ $(document).ready(function () {
 
     test("min-max", function () {
 
+        var evalCount = 0;
 	function node( value, subnodes ) {
 	    return { value: value, next: subnodes };
 	};
 	function eval( state ) {
+            evalCount = evalCount+1;
 	    return state.value;
 	};
 	function getActions( state ) {
@@ -325,6 +327,33 @@ $(document).ready(function () {
         var move = g.minimax(tree, eval, getActions, doAction, 3);
 	equal( move.move , tree.next[0] );
 	equal( move.value , 3 );
+        equal( evalCount, 7 );
+    });
+
+    test("min-max alpha-beta", function() {
+        var evalCount = 0;
+	function node( value, subnodes ) {
+	    return { value: value, next: subnodes };
+	};
+	function eval( state ) {
+            evalCount = evalCount+1;
+	    return state.value;
+	};
+	function getActions( state ) {
+	    return state.next || [];
+	};
+	function doAction( state, action ) {
+	    return action;
+	};
+    
+	var tree = node(3,
+	    [node(2, [node(4,null), node(2,[node(2,null),node(3,null)]),node(5,null)]),
+	     node(1, [node(1,null), node(8,null),node(6,null)])]);
+
+        var move = g.minimax(tree, eval, getActions, doAction, 3);
+	equal( move.move , tree.next[0] );
+	equal( move.value , 3 );
+        equal( evalCount, 7 );
     });
 
     test("game-minimax", function() {
@@ -345,4 +374,5 @@ $(document).ready(function () {
 
 	var move = g.minimax( game, eval, getActions, doAction, 2 );
     });
+
 });
