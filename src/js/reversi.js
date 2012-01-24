@@ -10,7 +10,7 @@ var Reversi = function () {
 
     var position = function (row, column) {
         var that = {};
-
+	
         that.show = row.toString() + "," + colName[column];
 
         that.toIndex = function () {
@@ -399,10 +399,11 @@ var Reversi = function () {
         return moveList[bestIndex];
     };
 
-    var minimax = function ( state, evaluationFunction, getActionsFunction, performActionFunction, ply, withPruning ) {
+    var minimax = function ( state, evaluationFunction, getActionsFunction, performActionFunction, ply, withPruning, maxPlayer ) {
         var nodes = 0;
         var evaluations = 0;
-        withPruning = withPruning || false;
+        withPruning = withPruning || false; // Run without pruning if not specified
+	maxPlayer = maxPlayer || (function(x) { return true; }); // Assume player 1
 
         // Test if we are at a leaf either because of search depth or because of end-of-game.	
         function leaf( state, ply ) {
@@ -476,7 +477,14 @@ var Reversi = function () {
 	    return { value: minValue, index: minIndex, move: actions[minIndex] };
 	}
 
-        var m = maxValueFunction( state, ply, -1e125, 1e125 );
+	var m;
+	if ( maxPlayer( state ) ) {
+            m = maxValueFunction( state, ply, -1e125, 1e125 );
+	}
+	else {
+	    m = minValueFunction( state, ply, -1e125, 1e125 );
+	}
+
 
         return { move: m.move
                , value: m.value

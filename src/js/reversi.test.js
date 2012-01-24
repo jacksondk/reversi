@@ -329,22 +329,10 @@ $(document).ready(function () {
         equal( evalCount, 7 );
     });
 
-    test("min-max alpha-beta", function() {
-        var evalCount = 0;
-	function node( value, subnodes ) {
-	    return { value: value, next: subnodes };
-	};
-	function eval( state ) {
-            evalCount = evalCount+1;
-	    return state.value;
-	};
-	function getActions( state ) {
-	    return state.next || [];
-	};
-	function doAction( state, action ) {
-	    return action;
-	};
-    
+    function node( value, subnodes ) {
+	return { value: value, next: subnodes };
+    };
+    function getTestTree() {
 	var tree = node(3,
 	    [node(2, 
                 [node(4,null), 
@@ -355,9 +343,27 @@ $(document).ready(function () {
 	     node(1, 
                  [node(1,null),
                   node(8,null),
-                  node(6,null)])]);
+                  node(6,null),
+		  node(2,null)])]);
+	return tree;
+    };
+    var evalCount = 0;
+    function eval( state ) {
+        evalCount = evalCount+1;
+	return state.value;
+    };
+    function getActions( state ) {
+	    return state.next || [];
+    };
+    function doAction( state, action ) {
+	return action;
+    };
 
+    test("min-max alpha-beta", function() {
+	evalCount = 0;
+	var tree = getTestTree();
         var move = g.minimax(tree, eval, getActions, doAction, 1);
+
 	equal( move.move , tree.next[0] );
 	equal( move.value , 2 );
         equal( move.visited, 3 );
@@ -365,21 +371,39 @@ $(document).ready(function () {
         move = g.minimax(tree, eval, getActions, doAction, 2);
         equal( move.move, tree.next[0] );
         equal( move.value, 2 );
-        equal( move.visited, 9 );
+        equal( move.visited, 10 );
 
         move = g.minimax(tree, eval, getActions, doAction, 2, true);
         equal( move.move, tree.next[0] );
         equal( move.value, 2 );
-        equal( move.visited , 9 );
+        equal( move.visited , 7 );
 
         move = g.minimax(tree, eval, getActions, doAction, 3 );
         equal( move.move, tree.next[0] );
         equal( move.value, 3 );
-        equal( move.visited, 11);
+        equal( move.visited, 12);
 
         move = g.minimax( tree, eval, getActions, doAction, 3, true );
         equal( move.value, 3 );
-        equal( move.visited, 11 );
+        equal( move.visited, 9 );
+    });
+
+    test("min-max alpha-beta player 2", function() {
+	evalCount = 0;
+	var tree = getTestTree();
+	var move = g.minimax(tree,eval, getActions, doAction, 2, false, 
+			     function() { return false; });
+	
+	equal( move.move, tree.next[0]);
+	equal( move.value, 5 );
+	equal( move.visited, 10 );
+
+	var move = g.minimax(tree,eval, getActions, doAction, 2, true, 
+			     function() { return false; });
+	equal( move.move, tree.next[0]);
+	equal( move.value, 5 );
+	equal( move.visited,8 );
+
     });
 
     test("game-minimax", function() {
@@ -394,11 +418,14 @@ $(document).ready(function () {
 	    var newState = state.doMove( action );
 	    return newState;
 	};
+	function maxPlayer( state ) {
+	    return state.getCurrentPlayer() == 1;
+	};
 
 	var game = g.reversi();
 	game.setup();
 
-	var move = g.minimax( game, eval, getActions, doAction, 2 );
+	var move = g.minimax( game, eval, getActions, doAction, 2, true, maxPlayer );
         console.log( move );
     });
 
