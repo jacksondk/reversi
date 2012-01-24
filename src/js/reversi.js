@@ -399,7 +399,23 @@ var Reversi = function () {
         return moveList[bestIndex];
     };
 
-    var minimax = function ( state, evaluationFunction, getActionsFunction, performActionFunction, ply, withPruning, maxPlayer ) {
+    // Minimax with optional alpha-beta pruning
+    // 
+    // Arguments: 
+    //
+    //   state - A state object send as first argument to
+    //   evaluationFunction - Function returning a value given a state
+    //   getActionsFunction - Function returning an array of allowed moves 
+    //   performActionFunction - Function returning a new state when applying an action 
+    //   ply - Number of moves to search
+    //   withPruning - True/False whether to use alpha-beta pruning
+    //   maxPlayer - Function that given a state specifies whether it should maximize or minimize.
+    var minimax = function (state, 
+			    evaluationFunction, 
+			    getActionsFunction, 
+			    performActionFunction, 
+			    ply, 
+			    withPruning, maxPlayer ) {
         var nodes = 0;
         var evaluations = 0;
         withPruning = withPruning || false; // Run without pruning if not specified
@@ -505,8 +521,11 @@ var Reversi = function () {
             var newGame = game.doMove( action );
             return newGame;
         };
+	function doMax( game ) {
+	    return game.getCurrentPlayer() === 1;
+	};
 
-        var move = minimax( game, evaluate, getActions, doAction, ply );
+        var move = minimax( game, evaluate, getActions, doAction, ply, true, doMax );
         return move.move;
     };
 
@@ -526,6 +545,10 @@ var Reversi = function () {
 	var game = reversi();
 	game.setup();
 
+	var addMoveToList = function ( player, move ) {
+	    $("#movelist").append( "Player " + player + " made " + 
+				   move.getPosition().show + "<br/>");
+	};
 	var opponentMove = function () {
 	    var moves = game.getLegalMoves();
 	    if (moves.length == 1 && moves[0].isGameOver()) {
@@ -535,21 +558,22 @@ var Reversi = function () {
 		var maxIndex = moves.length;
 		var type = $("#cputype").val();
 		switch (type) {
-		    case "first": game.makeMove(moves[0]); break;
-		    case "last": game.makeMove(moves[maxIndex - 1]); break;
-		    case "random":
-				 var randomIndex = Math.floor(Math.random() * maxIndex);
-				 game.makeMove(moves[randomIndex]);
-				 break;
-		    case "simplebest":
-				 bestMove = getBestMove(game, simpleEvaluator);
-				 game.makeMove(bestMove);
-				 break;
-		    case "minimax":
-				 bestMove = getBestMoveMinimax(game, simpleEvaluator, 4);
-				 game.makeMove(bestMove);
-				 break;
+		case "first": bestMove = moves[0]; break;
+		case "last": bestMove = moves[maxIndex - 1]; break;
+		case "random":
+		    var randomIndex = Math.floor(Math.random() * maxIndex);
+		    bestMove = moves[randomIndex];
+		    break;
+		case "simplebest":
+		    bestMove = getBestMove(game, simpleEvaluator);
+		    break;
+		default:
+		    bestMove = getBestMoveMinimax(game, simpleEvaluator, 4);
+		    break;
 		}
+		addMoveToList( game.getCurrentPlayer(), bestMove );
+		game.makeMove(bestMove);
+
 	    }
 	};
 
@@ -573,6 +597,8 @@ var Reversi = function () {
 
 	var eventHandler = function (row, column) {
 	    try {
+		addMoveToList( game.getCurrentPlayer(), 
+			       positionMove( position( row, column )));
 		game.makeMove(positionMove(position(row, column)));
 	    }
 	    catch (err) {
