@@ -305,128 +305,128 @@ $(document).ready(function () {
     test("min-max", function () {
 
         var evalCount = 0;
-	function node( value, subnodes ) {
-	    return { value: value, next: subnodes };
-	};
-	function eval( state ) {
-            evalCount = evalCount+1;
-	    return state.value;
-	};
-	function getActions( state ) {
-	    return state.next || [];
-	};
-	function doAction( state, action ) {
-	    return action;
-	};
-    
-	var tree = node(3,
-	    [node(2, [node(4,null), node(2,[node(2,null),node(3,null)]),node(5,null)]),
-	     node(1, [node(1,null), node(8,null),node(6,null)])]);
+        function node(value, subnodes) {
+            return { value: value, next: subnodes };
+        };
+        function eval(state) {
+            evalCount = evalCount + 1;
+            return state.value;
+        };
+        function getActions(state) {
+            return state.next || [];
+        };
+        function doAction(state, action) {
+            return action;
+        };
+
+        var tree = node(3,
+            [node(2, [node(4, null), node(2, [node(2, null), node(3, null)]), node(5, null)]),
+             node(1, [node(1, null), node(8, null), node(6, null)])]);
 
         var move = g.minimax(tree, eval, getActions, doAction, 3);
-	equal( move.move , tree.next[0] );
-	equal( move.value , 3 );
-        equal( evalCount, 7 );
+        equal(move.move, tree.next[0]);
+        equal(move.value, 3);
+        equal(evalCount, 7);
     });
 
-    function node( value, subnodes ) {
-	return { value: value, next: subnodes };
+    function node(value, subnodes) {
+        return { value: value, next: subnodes };
     };
     function getTestTree() {
-	var tree = node(3,
-	    [node(2, 
-                [node(4,null), 
-                 node(2,
-                     [node(2,null),
-                      node(3,null)]),
-                 node(5,null)]),
-	     node(1, 
-                 [node(1,null),
-                  node(8,null),
-                  node(6,null),
-		  node(2,null)])]);
-	return tree;
+        var tree = node(3,
+            [node(2,
+                    [node(4, null),
+                     node(2,
+                         [node(2, null),
+                          node(3, null)]),
+                     node(5, null)]),
+             node(1,
+                     [node(1, null),
+                      node(8, null),
+                      node(6, null),
+              node(2, null)])]);
+        return tree;
     };
     var evalCount = 0;
-    function eval( state ) {
-        evalCount = evalCount+1;
-	return state.value;
+    function eval(state) {
+        evalCount = evalCount + 1;
+        return state.value;
     };
-    function getActions( state ) {
-	    return state.next || [];
+    function getActions(state) {
+        return state.next || [];
     };
-    function doAction( state, action ) {
-	return action;
+    function doAction(state, action) {
+        return action;
     };
 
-    test("min-max alpha-beta", function() {
-	evalCount = 0;
-	var tree = getTestTree();
+    test("min-max alpha-beta", function () {
+        evalCount = 0;
+        var tree = getTestTree();
         var move = g.minimax(tree, eval, getActions, doAction, 1);
 
-	equal( move.move , tree.next[0] );
-	equal( move.value , 2 );
-        equal( move.visited, 3 );
+        equal(move.move, tree.next[0]);
+        equal(move.value, 2);
+        equal(move.visited, 3);
 
         move = g.minimax(tree, eval, getActions, doAction, 2);
-        equal( move.move, tree.next[0] );
-        equal( move.value, 2 );
-        equal( move.visited, 10 );
+        equal(move.move, tree.next[0]);
+        equal(move.value, 2);
+        equal(move.visited, 10);
 
         move = g.minimax(tree, eval, getActions, doAction, 2, true);
-        equal( move.move, tree.next[0] );
-        equal( move.value, 2 );
-        equal( move.visited , 7 );
+        equal(move.move, tree.next[0]);
+        equal(move.value, 2);
+        equal(move.visited, 7);
 
-        move = g.minimax(tree, eval, getActions, doAction, 3 );
-        equal( move.move, tree.next[0] );
-        equal( move.value, 3 );
-        equal( move.visited, 12);
+        move = g.minimax(tree, eval, getActions, doAction, 3);
+        equal(move.move, tree.next[0]);
+        equal(move.value, 3);
+        equal(move.visited, 12);
 
-        move = g.minimax( tree, eval, getActions, doAction, 3, true );
-        equal( move.value, 3 );
-        equal( move.visited, 9 );
+        move = g.minimax(tree, eval, getActions, doAction, 3, true);
+        equal(move.value, 3);
+        equal(move.visited, 9);
     });
 
-    test("min-max alpha-beta player 2", function() {
-	evalCount = 0;
-	var tree = getTestTree();
-	var move = g.minimax(tree,eval, getActions, doAction, 2, false, 
-			     function() { return false; });
-	
-	equal( move.move, tree.next[0]);
-	equal( move.value, 5 );
-	equal( move.visited, 10 );
+    test("min-max alpha-beta player 2", function () {
+        evalCount = 0;
+        var tree = getTestTree();
+        var move = g.minimax(tree, eval, getActions, doAction, 2, false,
+                     function () { return false; });
 
-	var move = g.minimax(tree,eval, getActions, doAction, 2, true, 
-			     function() { return false; });
-	equal( move.move, tree.next[0]);
-	equal( move.value, 5 );
-	equal( move.visited,8 );
+        equal(move.move, tree.next[0]);
+        equal(move.value, 5);
+        equal(move.visited, 10);
+
+        var move = g.minimax(tree, eval, getActions, doAction, 2, true,
+                     function () { return false; });
+        equal(move.move, tree.next[0]);
+        equal(move.value, 5);
+        equal(move.visited, 8);
 
     });
 
-    test("game-minimax", function() {
-	function eval( game ) {
-	    return g.simpleEvaluator(game.getBoard());
-	};
-	function getActions( game ) {
-	    var actions = game.getLegalMoves();
-	    return actions;
-	};
-	function doAction( state, action ) {
-	    var newState = state.doMove( action );
-	    return newState;
-	};
-	function maxPlayer( state ) {
-	    return state.getCurrentPlayer() == 1;
-	};
+    test("game-minimax", function () {
+        function eval(game) {
+            return g.simpleEvaluator(game.getBoard());
+        };
+        function getActions(game) {
+            var actions = game.getLegalMoves();
+            return actions;
+        };
+        function doAction(state, action) {
+            var newState = state.doMove(action);
+            return newState;
+        };
+        function maxPlayer(state) {
+            return state.getCurrentPlayer() == 1;
+        };
 
-	var game = g.reversi();
-	game.setup();
+        var game = g.reversi();
+        game.setup();
 
-	var move = g.minimax( game, eval, getActions, doAction, 2, true, maxPlayer );
-        console.log( move );
+        var move = g.minimax(game, eval, getActions, doAction, 2, true, maxPlayer);
+        console.log(move);
     });
 
 });

@@ -7,32 +7,33 @@ table.board
     border-collapse: separate;
 }
 
-table.board tbody tr td
-{
-    border-width: 1px;
-    border-style: solid;
-    width: 42px;
-    height: 42px;
-    text-align: center;
-}
+    table.board tbody tr td
+    {
+        border-width: 1px;
+        border-style: solid;
+        width: 42px;
+        height: 42px;
+        text-align: center;
+    }
 
-table.board tbody tr td.p1
-{
-    color: white;
-    background-color: black;
-}
+        table.board tbody tr td.p1
+        {
+            color: white;
+            background-color: black;
+        }
 
-table.board tbody tr td.p2
-{
-    color: black;
-    background-color: red;
-}
+        table.board tbody tr td.p2
+        {
+            color: black;
+            background-color: red;
+        }
 
-table.board tbody tr td.allowed:hover
-{
-    background-color: Lime;
-}
-table.board tbody tr td.allowed
-{
-    background-color: #efe;
-}
+        table.board tbody tr td.allowed:hover
+        {
+            background-color: Lime;
+        }
+
+        table.board tbody tr td.allowed
+        {
+            background-color: #efe;
+        }
