@@ -2,6 +2,20 @@
 {
 }
 
+.player1
+{
+    color: black;
+}
+
+.player2
+{
+    color: red;
+}
+
+#board
+{
+    float: left;
+}
 table.board
 {
     border-collapse: separate;
@@ -37,3 +51,8 @@ table.board
         {
             background-color: #efe;
         }
+
+#movelist
+{
+    float:right;
+}

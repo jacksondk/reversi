@@ -5,14 +5,14 @@ $(document).ready(function () {
     g = Reversi();
 
     test("getIndex of position", function () {
-        var p = g.position(3, 3);
+        var p = new g.Position(3, 3);
         var index = p.toIndex();
         expect(1);
         equal(index, 27, "Index 27 expected");
     });
 
     test("move from center", function () {
-        var pos = g.position(3, 3);
+        var pos = new g.Position(3, 3);
 
         var p1 = pos.move(0);
         equal(p1.getRow(), 4);
@@ -51,13 +51,13 @@ $(document).ready(function () {
     });
 
     test("Exception illegal move", function () {
-        var p = g.position(3, 3);
+        var p = new g.Position(3, 3);
         raises(function () { p.move(-1); });
         raises(function () { p.move(8); });
     });
 
     test("Null when moving outside", function () {
-        var p = g.position(0, 0);
+        var p = new g.Position(0, 0);
         equal(null, p.move(3));
         equal(null, p.move(4));
         equal(null, p.move(5));
@@ -67,7 +67,7 @@ $(document).ready(function () {
     });
 
     test("Null when moving outside top row", function () {
-        var p = g.position(0, 3);
+        var p = new g.Position(0, 3);
         equal(null, p.move(3));
         equal(null, p.move(4));
         equal(null, p.move(5));
@@ -76,20 +76,20 @@ $(document).ready(function () {
     });
 
     test("Test of get/set piece on board", function () {
-        var b = g.board();
-        var p = g.position(3, 3);
+        var b = new g.Board();
+        var p = new g.Position(3, 3);
 
 
         var before = b.getTypeAtPosition(p);
         equal(0, before);
-        b.setTypeAtPosition(g.position(3, 3), 1);
+        b.setTypeAtPosition(new g.Position(3, 3), 1);
         var after = b.getTypeAtPosition(p);
         equal(1, after);
     });
 
     test("Board copy", function () {
-        var b = g.board();
-        var p = g.position(3, 3);
+        var b = new g.Board();
+        var p = new g.Position(3, 3);
         b.setTypeAtPosition(p, 1);
 
         var b2 = b.copy();
@@ -104,18 +104,18 @@ $(document).ready(function () {
     });
 
     test("Test initial state of reversi game", function () {
-        var game = g.reversi();
+        var game = new g.Reversi();
         game.setup();
         var board = game.getBoard();
 
-        equal(1, board.getTypeAtPosition(g.position(3, 3)));
-        equal(1, board.getTypeAtPosition(g.position(4, 4)));
-        equal(2, board.getTypeAtPosition(g.position(4, 3)));
-        equal(2, board.getTypeAtPosition(g.position(3, 4)));
+        equal(1, board.getTypeAtPosition(new g.Position(3, 3)));
+        equal(1, board.getTypeAtPosition(new g.Position(4, 4)));
+        equal(2, board.getTypeAtPosition(new g.Position(4, 3)));
+        equal(2, board.getTypeAtPosition(new g.Position(3, 4)));
     });
 
     test("board output", function () {
-        var game = g.reversi();
+        var game = new g.Reversi();
         game.setup();
         var string = game.getBoard().toString();
         $("#test_output").html(string);
@@ -123,25 +123,25 @@ $(document).ready(function () {
     });
 
     test("Turn pieces", function () {
-        var game = g.reversi();
+        var game = new g.Reversi();
         game.setup();
 
-        var list = game.getTurnedPieces(game.getBoard(), g.position(3, 2), 2);
+        var list = g.getTurnedPieces(game.getBoard(), new g.Position(3, 2), 2);
         equal(list.length, 1);
         var pos = list[0];
         equal(pos.getRow(), 3);
         equal(pos.getColumn(), 3);
 
-        list = game.getTurnedPieces(game.getBoard(), g.position(2, 3), 2);
+        list = g.getTurnedPieces(game.getBoard(), new g.Position(2, 3), 2);
     });
 
     test("Make move", function () {
-        var game = g.reversi();
+        var game = new g.Reversi();
         game.setup();
 
         equal(game.getCurrentPlayer(), 1);
-        var newPos = g.position(4, 2);
-        var turnPos = g.position(4, 3);
+        var newPos = new g.Position(4, 2);
+        var turnPos = new g.Position(4, 3);
         game.makeMove(g.positionMove(newPos));
 
         var board = game.getBoard();
@@ -154,8 +154,8 @@ $(document).ready(function () {
         equal(board.getTypeAtPosition(newPos), 1);
         equal(board.getTypeAtPosition(turnPos), 1);
 
-        newPos = g.position(5, 2);
-        turnPos = g.position(4, 3);
+        newPos = new g.Position(5, 2);
+        turnPos = new g.Position(4, 3);
         game.makeMove(g.positionMove(newPos));
         equal(game.getCurrentPlayer(), 1);
         board = game.getBoard();
@@ -166,23 +166,23 @@ $(document).ready(function () {
     });
 
     test("Legal moves on statup", function () {
-        var game = g.reversi();
+        var game = new g.Reversi();
         game.setup();
 
         var allowedMoves = game.getLegalMoves();
         equal(4, allowedMoves.length);
 
-        game.makeMove(g.positionMove(g.position(4, 2)));
+        game.makeMove(g.positionMove(new g.Position(4, 2)));
         allowedMoves = game.getLegalMoves();
         equal(3, allowedMoves.length);
     });
 
     test("Pass move when game over", function () {
-        var game = g.reversi();
+        var game = new g.Reversi();
         game.setup();
         var b = game.getBoard();
-        b.setTypeAtPosition(g.position(3, 4), 1);
-        b.setTypeAtPosition(g.position(4, 3), 1);
+        b.setTypeAtPosition(new g.Position(3, 4), 1);
+        b.setTypeAtPosition(new g.Position(4, 3), 1);
 
         raises(function () {
             game.makePassMove();
@@ -191,11 +191,11 @@ $(document).ready(function () {
     });
 
     test("Game over", function () {
-        var game = g.reversi();
+        var game = new g.Reversi();
         game.setup();
         var b = game.getBoard();
-        b.setTypeAtPosition(g.position(3, 4), 1);
-        b.setTypeAtPosition(g.position(4, 3), 1);
+        b.setTypeAtPosition(new g.Position(3, 4), 1);
+        b.setTypeAtPosition(new g.Position(4, 3), 1);
 
         var allowedMoves = game.getLegalMoves();
         equal(1, allowedMoves.length);
@@ -203,7 +203,7 @@ $(document).ready(function () {
     });
 
     test("Pass is not legal when move is possible", function () {
-        var game = g.reversi();
+        var game = new g.Reversi();
         game.setup();
 
         raises(function () {
@@ -212,7 +212,7 @@ $(document).ready(function () {
     });
 
     test("Random game", function () {
-        var game = g.reversi();
+        var game = new g.Reversi();
         game.setup();
 
         for (var i = 0; i < 10; i++) {
@@ -221,10 +221,11 @@ $(document).ready(function () {
             game.makeMove(listOfMoves[randomIndex]);
             $("#test_output").append(game.getBoard().toString());
         }
+        expect(0);
     });
 
     test("doMake", function () {
-        var game = g.reversi();
+        var game = new g.Reversi();
         game.setup();
 
         var listOfMoves = game.getLegalMoves();
@@ -233,13 +234,13 @@ $(document).ready(function () {
         var game2 = game.doMove(move);
 
         equal(1, game2.getBoard().getTypeAtPosition(move.getPosition()));
-        equal(1, game2.getBoard().getTypeAtPosition(g.position(4, 4)));
+        equal(1, game2.getBoard().getTypeAtPosition(new g.Position(4, 4)));
         equal(0, game.getBoard().getTypeAtPosition(move.getPosition()));
-        equal(1, game.getBoard().getTypeAtPosition(g.position(4, 4)));
+        equal(1, game.getBoard().getTypeAtPosition(new g.Position(4, 4)));
     });
 
     test("simple eval", function () {
-        var game = g.reversi();
+        var game = new g.Reversi();
         game.setup();
 
         equal(0, g.simpleEvaluator(game.getBoard()));
@@ -251,16 +252,16 @@ $(document).ready(function () {
     });
 
     test("simple max evel", function () {
-        var game = g.reversi();
+        var game = new g.Reversi();
         game.setup();
 
         var row, column;
         var board = game.getBoard();
         board.clear();
         for (row = 0; row < 8; row++) {
-            board.setTypeAtPosition(g.position(row, 0), 1);
+            board.setTypeAtPosition(new g.Position(row, 0), 1);
             for (column = 1; column < row; column++) {
-                board.setTypeAtPosition(g.position(row, column), 2);
+                board.setTypeAtPosition(new g.Position(row, column), 2);
             }
         }
         $("#test_output").append(game.getBoard().toString());
@@ -276,16 +277,16 @@ $(document).ready(function () {
     });
 
     test("simple max evel - player 2", function () {
-        var game = g.reversi();
+        var game = new g.Reversi();
         game.setup();
         game.setCurrentPlayer(2);
         var row, column;
         var board = game.getBoard();
         board.clear();
         for (row = 0; row < 8; row++) {
-            board.setTypeAtPosition(g.position(row, 0), 2);
+            board.setTypeAtPosition(new g.Position(row, 0), 2);
             for (column = 1; column < row; column++) {
-                board.setTypeAtPosition(g.position(row, column), 1);
+                board.setTypeAtPosition(new g.Position(row, column), 1);
             }
         }
         $("#test_output").append(game.getBoard().toString());
@@ -422,11 +423,12 @@ $(document).ready(function () {
             return state.getCurrentPlayer() == 1;
         };
 
-        var game = g.reversi();
+        var game = new g.Reversi();
         game.setup();
 
         var move = g.minimax(game, eval, getActions, doAction, 2, true, maxPlayer);
         console.log(move);
+        expect(0);
     });
 
 });
