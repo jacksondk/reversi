@@ -9,22 +9,26 @@ var Reversi = function () {
     var rowName = ['1', '2', '3', '4', '5', '6', '7', '8'];
 
     function Position(row, column) {
+        /// <summary>Create position object</summary>
+        /// <param name="row">0 based row</param>
+        /// <param name="column">0 based column</param>
         this.row = row;
         this.column = column;
     }
 
     Position.prototype.show = function () {
-        return rowName[this.row] + "," + colName[this.column];
-    }
+        /// <summary>Show position as chess board position</summary>
+        return rowName[this.row] + colName[this.column];
+    };
 
     Position.prototype.toIndex = function () {
-        /// Compute index into array for row and column
+        /// <summary>Compute index into array for row and column</summary>
         return this.row + 8 * this.column;
-    }
+    };
 
     Position.prototype.move = function (direction) {
-        /// Compute a position from the current given a direction. If possition is
-        /// illegial null is returned. 
+        /// <summary>Compute a position from the current given a direction. If possition is
+        /// illegial null is returned. </summary>
         var newRow;
         var newColumn;
         var row = this.row;
@@ -56,7 +60,7 @@ var Reversi = function () {
         that.isPassMove = function () { return true; };
         that.isGameOver = function () { return false; };
         that.getPosition = function () { return null; };
-        that.show = function () { return "Pass"; }
+        that.show = function () { return "Pass"; };
         return that;
     };
 
@@ -66,7 +70,7 @@ var Reversi = function () {
         that.isPassMove = function () { return false; };
         that.isGameOver = function () { return true; };
         that.getPosition = function () { return null; };
-        that.show = function () { return "Game over"; }
+        that.show = function () { return "Game over"; };
         return that;
     };
 
@@ -82,16 +86,17 @@ var Reversi = function () {
     };
 
     function Board(otherBoard) {
+        var i;
         this.myBoard = [];
         otherBoard = otherBoard || {};
 
         if (otherBoard.board !== undefined) {
-            for (var i = 0; i < 8 * 8; i++) {
+            for (i = 0; i < 8 * 8; i++) {
                 this.myBoard[i] = otherBoard.board[i];
             }
         }
         else {
-            for (var i = 0; i < 8 * 8; i++) {
+            for (i = 0; i < 8 * 8; i++) {
                 this.myBoard[i] = 0;
             }
         }
@@ -180,9 +185,9 @@ var Reversi = function () {
         this.currentPlayer = 1;
     };
 
-    Reversi.prototype.getBoard = function () { return this.b; }
-    Reversi.prototype.getCurrentPlayer = function () { return this.currentPlayer; }
-    Reversi.prototype.setCurrentPlayer = function (player) { this.currentPlayer = player; }
+    Reversi.prototype.getBoard = function () { return this.b; };
+    Reversi.prototype.getCurrentPlayer = function () { return this.currentPlayer; };
+    Reversi.prototype.setCurrentPlayer = function (player) { this.currentPlayer = player; };
 
     var getTurnedPieces = function (board, position, type) {
         var direction;
@@ -226,7 +231,7 @@ var Reversi = function () {
         var newGame = new Reversi({ board: this.b, currentPlayer: this.currentPlayer });
         newGame.makeMove(move);
         return newGame;
-    }
+    };
 
     Reversi.prototype.makeMove = function (positionMove) {
         var index;
@@ -248,24 +253,28 @@ var Reversi = function () {
         this.currentPlayer = otherPlayer(this.currentPlayer);
     };
 
-    Reversi.prototype.getLegalMoves = function (player) {
-        // Find all legal moves where a piece is placed on board
-        var findLegalMovesForPlayer = function (player, b) {
-            var row, column, legalMoves = [];
-            var tryLocation;
-            var turnList;
+    var findLegalMovesForPlayer = function (player, b) {
+        var row, column, legalMoves = [];
+        var tryLocation;
+        var turnList;
 
-            for (row = 0; row < 8; row++) {
-                for (column = 0; column < 8; column++) {
-                    tryLocation = new Position(row, column);
-                    turnList = getTurnedPieces(b, tryLocation, player);
-                    if (turnList.length > 0) {
-                        legalMoves.push(positionMove(tryLocation));
-                    }
+        for (row = 0; row < 8; row++) {
+            for (column = 0; column < 8; column++) {
+                tryLocation = new Position(row, column);
+                turnList = getTurnedPieces(b, tryLocation, player);
+                if (turnList.length > 0) {
+                    legalMoves.push(positionMove(tryLocation));
                 }
             }
-            return legalMoves;
-        };
+        }
+        return legalMoves;
+    };
+
+    Reversi.prototype.getLegalMoves = function () {
+        /// <summary>Find all legal moves where a piece is placed on board and turns opponent pieces
+        /// if None are found - see if other player has options
+        /// if both are unable to make a move the game is over
+        /// if opponent is able to move make a pass move</summary>
 
         var legalMoves = findLegalMovesForPlayer(this.currentPlayer, this.b);
 
@@ -326,7 +335,6 @@ var Reversi = function () {
                     playerTwoCount = playerTwoCount + 1;
                     field.addClass("p2");
                 }
-                var allowed = false;
                 var movesIndex;
                 if (type === 0) {
                     for (movesIndex = 0; movesIndex < allowedMoves.length; movesIndex++) {
@@ -387,29 +395,32 @@ var Reversi = function () {
         return moveList[bestIndex];
     };
 
-    // Minimax with optional alpha-beta pruning
-    // 
-    // Arguments: 
-    //
-    //   state - A state object send as first argument to
-    //   evaluationFunction - Function returning a value given a state
-    //   getActionsFunction - Function returning an array of allowed moves 
-    //   performActionFunction - Function returning a new state when applying an action 
-    //   ply - Number of moves to search
-    //   withPruning - True/False whether to use alpha-beta pruning
-    //   maxPlayer - Function that given a state specifies whether it should maximize or minimize.
+
     var minimax = function (state,
-                evaluationFunction,
-                getActionsFunction,
-                performActionFunction,
-                ply,
-                withPruning, maxPlayer) {
+        evaluationFunction,
+        getActionsFunction,
+        performActionFunction,
+        ply,
+        withPruning, maxPlayer) {
+        /// <summary>Minimax with optional alpha-beta pruning
+        /// 
+        /// Arguments: 
+        ///
+        ///   state - A state object send as first argument to
+        ///   evaluationFunction - Function returning a value given a state
+        ///   getActionsFunction - Function returning an array of allowed moves 
+        ///   performActionFunction - Function returning a new state when applying an action 
+        ///   ply - Number of moves to search
+        ///   withPruning - True/False whether to use alpha-beta pruning
+        ///   maxPlayer - Function that given a state specifies whether it should maximize or minimize.    
+        /// </summary>
         var nodes = 0;
         var evaluations = 0;
         withPruning = withPruning || false; // Run without pruning if not specified
         maxPlayer = maxPlayer || (function (x) { return true; }); // Assume player 1
 
         // Test if we are at a leaf either because of search depth or because of end-of-game.	
+
         function leaf(state, ply) {
             if (ply === 0) {
                 evaluations = evaluations + 1;
@@ -484,19 +495,18 @@ var Reversi = function () {
         var m;
         if (maxPlayer(state)) {
             m = maxValueFunction(state, ply, -1e125, 1e125);
-        }
-        else {
+        } else {
             m = minValueFunction(state, ply, -1e125, 1e125);
         }
 
 
         return {
-            move: m.move
-               , value: m.value
-               , visited: nodes
-               , evaluations: evaluations
+            move: m.move,
+            value: m.value,
+            visited: nodes,
+            evaluations: evaluations
         };
-    }
+    };
 
     // Adapt the reversi game for the minimax function
     var getBestMoveMinimax = function (game, positionEvaluator, ply) {
@@ -520,7 +530,7 @@ var Reversi = function () {
     };
 
     var simpleEvaluator = function (board) {
-        /// Evaluate the board as a simple piece count
+        /// <summary>Evaluate the board as a simple piece count</summary>
         var value = 0, row, column;
         for (row = 0; row < 8; row++) {
             for (column = 0; column < 8; column++) {
@@ -533,17 +543,26 @@ var Reversi = function () {
     };
 
     var runGame = function () {
+        /// <summary>Run the game</summary>
         var game = new Reversi();
         game.setup();
 
         var addMoveToList = function (player, move) {
-            $("#movelist").append("<span class='player"+player+"'>Player " + player + " made move " +
+            $("#movelist").append("<span class='player" + player + "'>Player " + player + " made move " +
                        move.show() + "</span><br/>");
+            var current = $("#output").val();
+            if (current.toString().trim().length == 0) {
+                $("#output").val(move.show());
+            } else {
+                $("#output").val(current + ":" + move.show());
+            }
         };
         var opponentMove = function () {
+            /// <summary>Make a computer move</summary>
+            /// <returns type="">Returns the opponent move</returns>
             var moves = game.getLegalMoves();
             if (moves.length == 1 && moves[0].isGameOver()) {
-                return;
+                return moves[0];
             } else {
                 var bestMove;
                 var maxIndex = moves.length;
@@ -564,6 +583,7 @@ var Reversi = function () {
                 }
                 addMoveToList(game.getCurrentPlayer(), bestMove);
                 game.makeMove(bestMove);
+                return bestMove;
             }
         };
 
@@ -574,7 +594,9 @@ var Reversi = function () {
 
         var passHandler = function () {
             try {
-                game.makeMove(passMove());
+                var move = passMove();
+                addMoveToList(game.getCurrentPlayer(), move);
+                game.makeMove(move);
             }
             catch (err) {
                 window.alert(err);
@@ -587,9 +609,9 @@ var Reversi = function () {
 
         var eventHandler = function (row, column) {
             try {
-                addMoveToList(game.getCurrentPlayer(),
-                           positionMove(new Position(row, column)));
-                game.makeMove(positionMove(new Position(row, column)));
+                var move = positionMove(new Position(row, column));
+                addMoveToList(game.getCurrentPlayer(), move);
+                game.makeMove(move);
             }
             catch (err) {
                 window.alert(err);
@@ -600,6 +622,31 @@ var Reversi = function () {
             drawBoardWithEventHandlers();
         };
 
+        $("#replay").click(
+           function () {
+               var move;
+               var data =  $("#input").val();
+               var parts = data.split(":");
+               var mymove = parts[0];
+               var opponent = parts[1];
+               var remaining = parts.slice(2, parts.length).join(":");
+               if (mymove.length == 2) {
+                   var row = parseInt(mymove[0]);
+                   var column = mymove.charCodeAt(1) - "A".charCodeAt(0) + 1;
+                   move = positionMove(new Position(row - 1, column - 1));
+               } else if (mymove == "Pass") {
+                   move = passMove();
+               }
+               addMoveToList(game.getCurrentPlayer(), move);
+               game.makeMove(move);
+               var actualOpponentMove = opponentMove();
+               // TODO: Verify that the move is the same (we assume deterministic move evaluation)
+               
+               // Redraw
+               $("#input").val(remaining);
+               drawBoardWithEventHandlers();
+           }
+        );
 
         drawBoardWithEventHandlers();
     };
