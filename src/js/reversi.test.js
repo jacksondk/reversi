@@ -1,4 +1,5 @@
 /// <reference path="reversi.js"/>
+/// <reference path="http://code.jquery.com/qunit/git/qunit.js"/>
 
 $(document).ready(function () {
     module("Basic game mechanics");
@@ -239,6 +240,8 @@ $(document).ready(function () {
         equal(1, game.getBoard().getTypeAtPosition(new g.Position(4, 4)));
     });
 
+
+
     test("simple eval", function () {
         var game = new g.Reversi();
         game.setup();
@@ -249,6 +252,72 @@ $(document).ready(function () {
         var move = listOfMoves[randomIndex];
         var game2 = game.doMove(move);
         equal(3, g.simpleEvaluator(game2.getBoard()));
+    });
+
+    test("game play 1", function () {
+        var game = new g.Reversi();
+        game.setup();
+        // 4F:3D
+        game.makeMove(g.positionMove(new g.Position(3, 5)));
+        var move = g.getBestMoveMinimax(game, g.simpleEvaluator, 4);
+        equal(2, move.getPosition().getRow());
+        equal(3, move.getPosition().getColumn());
+        game.makeMove(move);
+        
+        // 2C:4G
+        game.makeMove(g.positionMove(new g.Position(1, 2)));
+        move = g.getBestMoveMinimax(game, g.simpleEvaluator, 4);
+        equal(3, move.getPosition().getRow());
+        equal(6, move.getPosition().getColumn());
+        game.makeMove(move);
+        
+        // 3E:2D
+        game.makeMove(g.positionMove(new g.Position(2, 4)));
+        move = g.getBestMoveMinimax(game, g.simpleEvaluator, 4);
+        equal(1, move.getPosition().getRow());
+        equal(3, move.getPosition().getColumn());
+        game.makeMove(move);
+        
+        // 2E:1B
+        game.makeMove(g.positionMove(new g.Position(1, 4)));
+        move = g.getBestMoveMinimax(game, g.simpleEvaluator, 4);
+        equal(0, move.getPosition().getRow());
+        equal(1, move.getPosition().getColumn());
+        game.makeMove(move);
+        
+        // 3C:5F:2B:1A:2A:1C:4C:4B:1D
+        game.makeMove(g.positionMove(new g.Position(2, 2)));
+        move = g.getBestMoveMinimax(game, g.simpleEvaluator, 4);
+        equal(4, move.getPosition().getRow());
+        equal(5, move.getPosition().getColumn());
+        game.makeMove(move);
+        
+        // 2B:1A:2A:1C:4C:4B:1D
+        game.makeMove(g.positionMove(new g.Position(1, 1)));
+        move = g.getBestMoveMinimax(game, g.simpleEvaluator, 4);
+        equal(0, move.getPosition().getRow());
+        equal(0, move.getPosition().getColumn());
+        game.makeMove(move);
+        
+        // 2A:1C:4C:4B:1D
+        game.makeMove(g.positionMove(new g.Position(1, 0)));
+        move = g.getBestMoveMinimax(game, g.simpleEvaluator, 4);
+        equal(0, move.getPosition().getRow());
+        equal(2, move.getPosition().getColumn());
+        game.makeMove(move);
+        
+        // 4C:4B
+        game.makeMove(g.positionMove(new g.Position(3, 2)));
+        move = g.getBestMoveMinimax(game, g.simpleEvaluator, 4);
+        equal(3, move.getPosition().getRow());
+        equal(1, move.getPosition().getColumn());
+        game.makeMove(move);
+
+        // 1D
+        var accepted = game.getLegalMoves();
+        game.makeMove(g.positionMove(new g.Position(0, 3)));
+        move = g.getBestMoveMinimax(game, g.simpleEvaluator, 4);
+        
     });
 
     test("simple max evel", function () {
@@ -406,6 +475,8 @@ $(document).ready(function () {
         equal(move.visited, 8);
 
     });
+
+
 
     test("game-minimax", function () {
         function eval(game) {

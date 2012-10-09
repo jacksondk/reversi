@@ -53,7 +53,7 @@ var Reversi = function () {
 
     Position.prototype.getRow = function () { return this.row; };
     Position.prototype.getColumn = function () { return this.column; };
-
+    
     var passMove = function () {
         var that = {};
 
@@ -239,12 +239,19 @@ var Reversi = function () {
             this.makePassMove();
             return;
         }
+        if (positionMove.isGameOver()) {
+            return;
+        }
 
         var position = positionMove.getPosition();
-        if (position === null) { throw "Not a valid move"; }
+        if (position === null) {
+             throw "Not a valid move";
+        }
 
         var turnList = getTurnedPieces(this.b, position, this.currentPlayer);
-        if (turnList.length === 0) { throw "Illegal move"; }
+        if (turnList.length === 0) {
+             throw "Illegal move";
+        }
 
         for (index = 0; index < turnList.length; index++) {
             this.b.setTypeAtPosition(turnList[index], this.currentPlayer);
@@ -382,7 +389,7 @@ var Reversi = function () {
         var bestIndex = -1;
         var i;
         var playerSign = 1;
-        if (game.getCurrentPlayer() == 2) { playerSign = -1; }
+        if (game.getCurrentPlayer() === 2) { playerSign = -1; }
 
         for (i = 0; i < moveList.length; i++) {
             var newGame = game.doMove(moveList[i]);
@@ -551,23 +558,22 @@ var Reversi = function () {
             $("#movelist").append("<span class='player" + player + "'>Player " + player + " made move " +
                        move.show() + "</span><br/>");
             var current = $("#output").val();
-            if (current.toString().trim().length == 0) {
+            if (current.toString().trim().length === 0) {
                 $("#output").val(move.show());
             } else {
                 $("#output").val(current + ":" + move.show());
             }
         };
-        var opponentMove = function () {
+        var opponentMove = function (cpuType) {
             /// <summary>Make a computer move</summary>
             /// <returns type="">Returns the opponent move</returns>
             var moves = game.getLegalMoves();
-            if (moves.length == 1 && moves[0].isGameOver()) {
+            if (moves.length === 1 && moves[0].isGameOver()) {
                 return moves[0];
             } else {
                 var bestMove;
                 var maxIndex = moves.length;
-                var type = $("#cputype").val();
-                switch (type) {
+                switch (cpuType) {
                     case "first": bestMove = moves[0]; break;
                     case "last": bestMove = moves[maxIndex - 1]; break;
                     case "random":
@@ -603,7 +609,7 @@ var Reversi = function () {
                 return;
             }
 
-            opponentMove();
+            opponentMove($("#cputype").val());
             drawBoardWithEventHandlers();
         };
 
@@ -618,14 +624,14 @@ var Reversi = function () {
                 return;
             }
 
-            opponentMove();
+            opponentMove($("#cputype").val());
             drawBoardWithEventHandlers();
         };
 
         $("#replay").click(
            function () {
                var move;
-               var data =  $("#input").val();
+               var data = $("#input").val();
                var parts = data.split(":");
                var mymove = parts[0];
                var opponent = parts[1];
@@ -639,9 +645,9 @@ var Reversi = function () {
                }
                addMoveToList(game.getCurrentPlayer(), move);
                game.makeMove(move);
-               var actualOpponentMove = opponentMove();
+               var actualOpponentMove = opponentMove("minimax");
                // TODO: Verify that the move is the same (we assume deterministic move evaluation)
-               
+
                // Redraw
                $("#input").val(remaining);
                drawBoardWithEventHandlers();
